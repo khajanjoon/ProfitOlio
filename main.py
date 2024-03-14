@@ -45,14 +45,3 @@ if add_button:
 
 # Display the updated portfolio
 st.write('Your Portfolio', st.session_state.portfolio)
-
-import streamlit.components.v1 as components
-
-# The HTML content, including the blockquote for the widget and the script tag for loading the JavaScript
-html_content = '''
-    <blockquote class="trendlyne-widgets" data-get-url="https://trendlyne.com/web-widget/swot-widget/Poppins/ZOMATO/?posCol=00A25B&primaryCol=006AFF&negCol=EB3B00&neuCol=F7941E" data-theme="light"></blockquote>
-    <script async src="https://cdn-static.trendlyne.com/static/js/webwidgets/tl-widgets.js" charset="utf-8"> </script>
-'''
-
-# Use the components.html function to embed the HTML in your Streamlit app
-components.html(html_content, height=600)
