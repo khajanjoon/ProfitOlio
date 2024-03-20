@@ -12,7 +12,7 @@ add_button = st.button('Add to Portfolio')
 
 # Initialize portfolio in session state if it doesn't exist
 if 'portfolio' not in st.session_state:
-    st.session_state.portfolio = pd.DataFrame(columns=['Stock Symbol', 'Quantity', 'Average Purchase Price', 'Date of Purchase', 'Current Price', 'Current Value', 'Amount Invested'])
+    st.session_state.portfolio = pd.DataFrame(columns=['Stock Symbol', 'Quantity', 'Average Purchase Price', 'Date of Purchase', 'Current Price', 'Current Value', 'Amount Invested', 'Profit/ Loss', 'Profit/ Loss %'])
 
 def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date):
     stock_info = yf.Ticker(stock_symbol)
@@ -25,6 +25,8 @@ def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
     # Calculate current value and amount invested
     current_value = quantity * current_price
     amount_invested = quantity * average_price
+    profit_loss = current_value - amount_invested
+    profit_loss_percent = (profit_loss / amount_invested) * 100
 
     # Create a new entry for this stock as a DataFrame
     new_stock = pd.DataFrame([{
@@ -34,7 +36,9 @@ def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
         'Date of Purchase': purchase_date, 
         'Current Price': current_price, 
         'Current Value': current_value,
-        'Amount Invested': amount_invested
+        'Amount Invested': amount_invested,
+        'Profit/ Loss': profit_loss,
+        'Profit/ Loss %': profit_loss_percent
     }])
     
     # Add this entry to the portfolio DataFrame in the session state
