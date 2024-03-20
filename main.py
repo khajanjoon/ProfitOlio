@@ -161,3 +161,18 @@ if not st.session_state.portfolio.empty:
         st.write("Unable to calculate current values for the stocks in your portfolio.")
 else:
     st.write("Your portfolio is currently empty.")
+
+if not st.session_state.portfolio.empty:
+    # Extract stock symbols and amount invested for each stock
+    invested_amounts = st.session_state.portfolio.groupby('Stock Symbol')['Amount Invested'].sum()
+    
+    # Prepare data for pie chart
+    labels = invested_amounts.index.tolist()
+    values = invested_amounts.values.tolist()
+
+    # Plot pie chart
+    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
+    fig.update_layout(title_text="Portfolio Distribution by Amount Invested")
+    st.plotly_chart(fig)
+else:
+    st.write("Your portfolio is currently empty.")
