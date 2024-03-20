@@ -47,5 +47,35 @@ def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
 if add_button:
     add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
 
+
+# Function to sell stocks
+def sell_stock_from_portfolio(index, sell_quantity):
+    # Assuming 'index' is the index of the stock in the DataFrame and 'sell_quantity' is how much to sell
+    stock = st.session_state.portfolio.loc[index]
+    if sell_quantity >= stock['Quantity']:
+        # If selling more or equal to what's in portfolio, remove the stock
+        st.session_state.portfolio = st.session_state.portfolio.drop(index)
+    else:
+        # Adjust the quantity and recalculate metrics
+        st.session_state.portfolio.at[index, 'Quantity'] -= sell_quantity
+        # Recalculate metrics like current value, profit/loss, etc. based on the new quantity
+        # This is a simplified example; you'll need to adjust it according to your specific calculations
+
+    # After modifications, reset the index and update the session state
+    st.session_state.portfolio.reset_index(drop=True, inplace=True)
+
+# Display the updated portfolio and add "Sell" buttons
+for index, row in st.session_state.portfolio.iterrows():
+    cols = st.columns([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2])
+    # Example of displaying stock info - adjust according to your needs
+    cols[0].write(row['Stock Symbol'])
+    cols[1].write(row['Quantity'])
+    # Continue for other columns...
+    sell_quantity = cols[9].number_input('Sell Qty', min_value=1, max_value=row['Quantity'], key=f"sell_{index}")
+    if cols[9].button('Sell', key=f"sell_btn_{index}"):
+        sell_stock_from_portfolio(index, sell_quantity)
+
+# Ensure this section is not within the loop
+
 # Display the updated portfolio
 st.write('Your Portfolio', st.session_state.portfolio)
