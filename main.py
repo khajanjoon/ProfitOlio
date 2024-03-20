@@ -104,11 +104,24 @@ st.write('Your Portfolio', st.session_state.portfolio)
 
 
 
-# Calculate the total value of the portfolio
-total_value = st.session_state.portfolio['Current Value'].sum()
-total_investment = st.session_state.portfolio['Amount Invested'].sum()
-total_profit_loss = st.session_state.portfolio['Profit/ Loss'].sum()
-total_profit_loss_percent = (total_profit_loss / total_investment) * 100
+# Calculate the total value of the portfolio only if the portfolio is not empty
+if not st.session_state.portfolio.empty:
+    total_value = st.session_state.portfolio['Current Value'].sum()
+    total_investment = st.session_state.portfolio['Amount Invested'].sum()
+    total_profit_loss = st.session_state.portfolio['Profit/ Loss'].sum()
+    if total_investment > 0:
+        total_profit_loss_percent = (total_profit_loss / total_investment) * 100
+    else:
+        total_profit_loss_percent = 0
+else:
+    # Set default values to 0 if the portfolio is empty
+    total_value = 0
+    total_investment = 0
+    total_profit_loss = 0
+    total_profit_loss_percent = 0
+
+# Continue with the rest of your code...
+
 
 # Graph
 
