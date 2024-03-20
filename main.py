@@ -79,3 +79,62 @@ for index, row in st.session_state.portfolio.iterrows():
 
 # Display the updated portfolio
 st.write('Your Portfolio', st.session_state.portfolio)
+
+
+
+
+
+# Calculate the total value of the portfolio
+total_value = st.session_state.portfolio['Current Value'].sum()
+total_investment = st.session_state.portfolio['Amount Invested'].sum()
+total_profit_loss = st.session_state.portfolio['Profit/ Loss'].sum()
+total_profit_loss_percent = (total_profit_loss / total_investment) * 100
+
+# Graph
+
+
+
+import plotly.graph_objs as go
+
+def fetch_historical_data(stock_symbol, period):
+    stock_info = yf.Ticker(stock_symbol)
+    return stock_info.history(period=period)['Close']
+def calculate_portfolio_value_over_time():
+    # Ensure we have a list of unique dates over the last month
+    end_date = pd.Timestamp.now()
+    start_date = end_date - pd.Timedelta(days=30)
+    dates = pd.date_range(start=start_date, end=end_date, freq='D')
+    portfolio_values = pd.Series(0, index=dates)
+
+    for _, row in st.session_state.portfolio.iterrows():
+        historical_prices = fetch_historical_data(row['Stock Symbol'], '1mo')
+        # Calculate the portfolio value for each date
+        for date in dates:
+            if date in historical_prices.index:
+                 portfolio_values[date] += row['Quantity'] * historical_prices[date]
+        # Sum up the value for each stock in the portfolio
+        for date in dates:
+            date_str = date.strftime('%Y-%m-%d')
+            if date_str in historical_prices.index:
+                portfolio_values[date] += historical_prices[date_str] * row['Quantity']
+    # Plot the portfolio value over time
+    fig = go.Figure(data=go.Scatter(x=dates, y=portfolio_values, mode='lines'))
+    st.plotly_chart(fig)
+
+    # Check if portfolio_values has valid data
+    st.write("Debug: Portfolio values calculated:", portfolio_values.head())  # Debug output
+
+    return portfolio_values
+
+if not st.session_state.portfolio.empty:
+    portfolio_values = calculate_portfolio_value_over_time()
+    if not portfolio_values.empty:
+        # Plotting the portfolio value over time
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=portfolio_values.index, y=portfolio_values, mode='lines', name='Portfolio Value'))
+        fig.update_layout(title='Portfolio Value Over Last Month', xaxis_title='Date', yaxis_title='Value')
+        st.plotly_chart(fig)
+    else:
+        st.write("Unable to calculate portfolio values or no data available for the given period.")
+else:
+    st.write("Your portfolio is currently empty.")
