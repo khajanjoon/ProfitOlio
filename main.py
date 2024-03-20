@@ -120,8 +120,6 @@ else:
     total_profit_loss = 0
     total_profit_loss_percent = 0
 
-# Continue with the rest of your code...
-
 
 # Graph
 
