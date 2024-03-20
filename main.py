@@ -22,27 +22,47 @@ def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
         st.error("Failed to fetch current price. Please check the stock symbol.")
         return
 
-    # Calculate current value and amount invested
-    current_value = quantity * current_price
-    amount_invested = quantity * average_price
-    profit_loss = current_value - amount_invested
-    profit_loss_percent = (profit_loss / amount_invested) * 100
+    # Check if the stock symbol already exists in the portfolio
+    if stock_symbol in st.session_state.portfolio['Stock Symbol'].values:
+        # Get the index of the existing stock
+        index = st.session_state.portfolio[st.session_state.portfolio['Stock Symbol'] == stock_symbol].index[0]
+        
+        # Update the existing entry
+        existing_quantity = st.session_state.portfolio.at[index, 'Quantity']
+        existing_average_price = st.session_state.portfolio.at[index, 'Average Purchase Price']
 
-    # Create a new entry for this stock as a DataFrame
-    new_stock = pd.DataFrame([{
-        'Stock Symbol': stock_symbol, 
-        'Quantity': quantity, 
-        'Average Purchase Price': average_price,
-        'Date of Purchase': purchase_date, 
-        'Current Price': current_price, 
-        'Current Value': current_value,
-        'Amount Invested': amount_invested,
-        'Profit/ Loss': profit_loss,
-        'Profit/ Loss %': profit_loss_percent
-    }])
-    
-    # Add this entry to the portfolio DataFrame in the session state
-    st.session_state.portfolio = pd.concat([st.session_state.portfolio, new_stock], ignore_index=True)
+        # Calculate the new average price
+        total_cost = (existing_average_price * existing_quantity) + (average_price * quantity)
+        new_quantity = existing_quantity + quantity
+        new_average_price = total_cost / new_quantity
+        
+        # Update the DataFrame
+        st.session_state.portfolio.at[index, 'Quantity'] = new_quantity
+        st.session_state.portfolio.at[index, 'Average Purchase Price'] = new_average_price
+        st.session_state.portfolio.at[index, 'Date of Purchase'] = purchase_date  # Assuming the most recent purchase date is desired
+    else:
+        # Calculate current value and amount invested
+        current_value = quantity * current_price
+        amount_invested = quantity * average_price
+        profit_loss = current_value - amount_invested
+        profit_loss_percent = (profit_loss / amount_invested) * 100
+
+        # Create a new entry for this stock as a DataFrame
+        new_stock = pd.DataFrame([{
+            'Stock Symbol': stock_symbol, 
+            'Quantity': quantity, 
+            'Average Purchase Price': average_price,
+            'Date of Purchase': purchase_date, 
+            'Current Price': current_price, 
+            'Current Value': current_value,
+            'Amount Invested': amount_invested,
+            'Profit/ Loss': profit_loss,
+            'Profit/ Loss %': profit_loss_percent
+        }])
+        
+        # Add this entry to the portfolio DataFrame in the session state
+        st.session_state.portfolio = pd.concat([st.session_state.portfolio, new_stock], ignore_index=True)
+
 
 if add_button:
     add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
@@ -96,45 +116,37 @@ total_profit_loss_percent = (total_profit_loss / total_investment) * 100
 
 import plotly.graph_objs as go
 
-def fetch_historical_data(stock_symbol, period):
-    stock_info = yf.Ticker(stock_symbol)
-    return stock_info.history(period=period)['Close']
-def calculate_portfolio_value_over_time():
-    # Ensure we have a list of unique dates over the last month
-    end_date = pd.Timestamp.now()
-    start_date = end_date - pd.Timedelta(days=30)
-    dates = pd.date_range(start=start_date, end=end_date, freq='D')
-    portfolio_values = pd.Series(0, index=dates)
-
+# Assuming 'portfolio' is a DataFrame with your stock symbols and quantities
+# Function to calculate current value of each stock in the portfolio
+def calculate_current_value():
+    stock_values = {}
     for _, row in st.session_state.portfolio.iterrows():
-        historical_prices = fetch_historical_data(row['Stock Symbol'], '1mo')
-        # Calculate the portfolio value for each date
-        for date in dates:
-            if date in historical_prices.index:
-                 portfolio_values[date] += row['Quantity'] * historical_prices[date]
-        # Sum up the value for each stock in the portfolio
-        for date in dates:
-            date_str = date.strftime('%Y-%m-%d')
-            if date_str in historical_prices.index:
-                portfolio_values[date] += historical_prices[date_str] * row['Quantity']
-    # Plot the portfolio value over time
-    fig = go.Figure(data=go.Scatter(x=dates, y=portfolio_values, mode='lines'))
-    st.plotly_chart(fig)
+        symbol = row['Stock Symbol']
+        quantity = row['Quantity']
+        # Fetch current stock price
+        stock_info = yf.Ticker(symbol)
+        try:
+            current_price = stock_info.history(period='1d')['Close'][-1]
+            # Calculate current value for this stock and add to the dictionary
+            stock_values[symbol] = current_price * quantity
+        except IndexError:
+            st.error(f"Failed to fetch current price for {symbol}.")
+            continue  # Skip this stock if its current price can't be fetched
 
-    # Check if portfolio_values has valid data
-    st.write("Debug: Portfolio values calculated:", portfolio_values.head())  # Debug output
-
-    return portfolio_values
+    return stock_values
 
 if not st.session_state.portfolio.empty:
-    portfolio_values = calculate_portfolio_value_over_time()
-    if not portfolio_values.empty:
-        # Plotting the portfolio value over time
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=portfolio_values.index, y=portfolio_values, mode='lines', name='Portfolio Value'))
-        fig.update_layout(title='Portfolio Value Over Last Month', xaxis_title='Date', yaxis_title='Value')
+    stock_values = calculate_current_value()
+    if stock_values:
+        # Prepare data for pie chart
+        labels = list(stock_values.keys())
+        values = list(stock_values.values())
+
+        # Plot pie chart
+        fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
+        fig.update_layout(title_text="Portfolio Distribution by Current Value")
         st.plotly_chart(fig)
     else:
-        st.write("Unable to calculate portfolio values or no data available for the given period.")
+        st.write("Unable to calculate current values for the stocks in your portfolio.")
 else:
     st.write("Your portfolio is currently empty.")
