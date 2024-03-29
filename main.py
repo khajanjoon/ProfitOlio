@@ -1,4 +1,4 @@
-import images
+# import images
 import yfinance as yf
 import pandas as pd
 import streamlit as st
@@ -193,3 +193,35 @@ if not st.session_state.portfolio.empty:
         st.write("Unable to calculate values for the stocks in your portfolio.")
 else:
     st.write("Your portfolio is currently empty.")
+
+
+
+def calculate_current_value_for_last_month_plotly():
+    for _, row in st.session_state.portfolio.iterrows():
+        symbol = row['Stock Symbol']
+        # Fetch current stock price
+        stock_info = yf.Ticker(symbol)
+        try:
+            # Fetch stock history for the last month with daily intervals
+            stock_history = stock_info.history(period='1mo', interval='1d')
+
+            # Create a Plotly figure
+            fig = go.Figure()
+
+            # Add the time series data
+            fig.add_trace(go.Scatter(x=stock_history.index, y=stock_history['Close'], mode='lines', name=symbol))
+
+            # Update layout with title and axis labels
+            fig.update_layout(title=f'Stock Price of {symbol} in Last 30 Days',
+                            xaxis_title='Date',
+                            yaxis_title='Stock Price')
+
+            # Display the figure in the Streamlit app
+            st.plotly_chart(fig)
+
+        except Exception as e:
+            # Handle errors and continue with the next iteration
+            st.error(f"Failed to fetch current price for {symbol}. Error: {e}")
+            continue
+
+calculate_current_value_for_last_month_plotly()
