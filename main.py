@@ -64,7 +64,16 @@ add_button = st.button('Add to Portfolio')
 
 # Initialize portfolio in session state if it doesn't exist
 if 'portfolio' not in st.session_state:
-    st.session_state.portfolio = pd.DataFrame(columns=['Stock Symbol', 'Quantity', 'Average Purchase Price', 'Date of Purchase', 'Current Price', 'Current Value', 'Amount Invested', 'Profit/ Loss', 'Profit/ Loss %'])
+    st.session_state.portfolio = pd.DataFrame(columns=['Stock Symbol', 'Currency', 'Quantity', 'Average Purchase Price', 'Date of Purchase', 'Current Price', 'Current Value', 'Amount Invested', 'Profit/ Loss', 'Profit/ Loss %'])
+
+# Check if the 'Currency' column exists, and add it if it doesn't
+if 'Currency' not in st.session_state.portfolio.columns:
+    # Assuming default currency is USD for existing stocks, adjust as needed
+    if stock_symbol.endswith('.NS') or stock_symbol.endswith('.ns'):
+        st.session_state.portfolio['Currency'] = 'INR'
+    else:
+        st.session_state.portfolio['Currency'] = 'USD'
+
 
 def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date):
     stock_info = yf.Ticker(stock_symbol)
@@ -108,9 +117,16 @@ def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
         st.session_state.portfolio.at[index, 'Profit/ Loss %'] = new_profit_loss_percent
         
     else:
+
+        # Example of adding a stock priced in INR
+        if stock_symbol.endswith('.NS'):  # Assuming '.NS' denotes Indian stocks on Yahoo Finance
+            currency = 'INR'
+        else:
+            currency = 'USD'  # Default to USD for simplicity
         # Add this entry to the portfolio DataFrame in the session state
         new_stock = pd.DataFrame([{
             'Stock Symbol': stock_symbol, 
+            'Currency' : currency,
             'Quantity': quantity, 
             'Average Purchase Price': average_price,
             'Date of Purchase': purchase_date, 
@@ -127,6 +143,23 @@ def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
 if add_button:
     add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
 
+# Fetch the current USD to INR exchange rate here if not already done
+usd_to_inr_rate = fetch_usd_to_inr_exchange_rate()
+
+# Adjusting conversion for each asset based on its currency
+def adjust_currency(row):
+    if row['Currency'] == 'USD':
+        # Convert only if the asset is in USD
+        row['Current Value INR'] = row['Current Value'] * usd_to_inr_rate
+        row['Amount Invested INR'] = row['Amount Invested'] * usd_to_inr_rate
+    else:
+        # If the asset is already in INR, just copy the original values
+        row['Current Value INR'] = row['Current Value']
+        row['Amount Invested INR'] = row['Amount Invested']
+    return row
+
+# Apply the conversion adjustment to each row in the portfolio DataFrame
+st.session_state.portfolio = st.session_state.portfolio.apply(adjust_currency, axis=1)
 
 # Function to sell stocks
 def sell_stock_from_portfolio(index, sell_quantity):
