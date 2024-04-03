@@ -154,6 +154,9 @@ def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
         
         st.session_state.portfolio = pd.concat([st.session_state.portfolio, new_stock], ignore_index=True)
 
+# Reassign the DataFrame to ensure Streamlit recognizes the update
+st.session_state.portfolio = st.session_state.portfolio.copy()
+
 
 if add_button:
     add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date)
@@ -213,7 +216,7 @@ def calculate_current_value():
         # Fetch current stock price
         stock_info = yf.Ticker(symbol)
         try:
-            current_price = stock_info.history(period='1d')['Close'][-1]
+            current_price = (stock_info.history(period='1d')['Close'][-1])
             # Calculate current value for this stock and add to the dictionary
             stock_values[symbol] = current_price * quantity
         except IndexError:
@@ -231,8 +234,8 @@ st.write('Your Portfolio', st.session_state.portfolio)
 
 # Calculate the total value of the portfolio only if the portfolio is not empty
 if not st.session_state.portfolio.empty:
-    total_value = st.session_state.portfolio['Current Value'].sum()
-    total_investment = st.session_state.portfolio['Amount Invested'].sum()
+    total_value = st.session_state.portfolio['Current Value INR'].sum()
+    total_investment = st.session_state.portfolio['Amount Invested INR'].sum()
     total_profit_loss = st.session_state.portfolio['Profit/ Loss'].sum()
     if total_investment > 0:
         total_profit_loss_percent = (total_profit_loss / total_investment) * 100
@@ -253,7 +256,7 @@ else:
 
 if not st.session_state.portfolio.empty:
     stock_values = calculate_current_value()
-    invested_amounts = st.session_state.portfolio.groupby('Stock Symbol')['Amount Invested'].sum()
+    invested_amounts = st.session_state.portfolio.groupby('Stock Symbol')['Amount Invested INR'].sum()
 
     if stock_values and not invested_amounts.empty:
         # Data for the first pie chart (Current Value)
@@ -269,13 +272,13 @@ if not st.session_state.portfolio.empty:
 
         # First pie chart
         fig.add_trace(
-            go.Pie(labels=labels_value, values=values_value, hole=.3, title="Current Value"),
+            go.Pie(labels=labels_value, values=values_value, hole=.3, title="Current Value INR"),
             row=1, col=1
         )
 
         # Second pie chart
         fig.add_trace(
-            go.Pie(labels=labels_invested, values=values_invested, hole=.3, title="Amount Invested"),
+            go.Pie(labels=labels_invested, values=values_invested, hole=.3, title="Amount Invested INR"),
             row=1, col=2
         )
 
