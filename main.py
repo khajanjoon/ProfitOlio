@@ -6,6 +6,35 @@ import streamlit as st
 
 # Streamlit interface for input
 st.title('Portfolio Management System')
+
+# Display the total investment and current value prominently
+if not st.session_state.portfolio.empty:
+    total_value = st.session_state.portfolio['Current Value'].sum()
+    total_investment = st.session_state.portfolio['Amount Invested'].sum()
+    total_profit_loss = st.session_state.portfolio['Profit/ Loss'].sum()
+    if total_investment > 0:
+        total_profit_loss_percent = (total_profit_loss / total_investment) * 100
+    else:
+        total_profit_loss_percent = 0
+else:
+    # Set default values to 0 if the portfolio is empty
+    total_value = 0
+    total_investment = 0
+    total_profit_loss = 0
+    total_profit_loss_percent = 0
+
+# Use st.metric to display the total amount invested and current value
+col1, col2 = st.columns(2)
+col1.metric("Total Amount Invested", f"₹ {total_investment:,.2f}")
+col2.metric("Current Portfolio Value", f"₹ {total_value:,.2f}")
+
+
+
+
+
+
+
+
 stock_symbol = st.text_input('Stock Symbol', 'AAPL')
 quantity = st.number_input('Quantity', min_value=1)
 average_price = st.number_input('Average Purchase Price', min_value=0.01)
