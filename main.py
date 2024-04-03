@@ -3,12 +3,26 @@ import yfinance as yf
 import pandas as pd
 import streamlit as st
 
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
 
 # Streamlit interface for input
 st.title('Portfolio Management System')
 
+# Initialize 'portfolio' in session_state if it doesn't exist
+if 'portfolio' not in st.session_state:
+    st.session_state['portfolio'] = pd.DataFrame(columns=[
+        'Stock Symbol', 'Currency', 'Quantity', 'Average Purchase Price', 
+        'Date of Purchase', 'Current Price', 'Current Value', 
+        'Amount Invested', 'Profit/ Loss', 'Profit/ Loss %', 
+        'Current Value INR', 'Amount Invested INR'
+    ])
+
+
 # Display the total investment and current value prominently
 if not st.session_state.portfolio.empty:
+
     total_value = st.session_state.portfolio['Current Value'].sum()
     total_investment = st.session_state.portfolio['Amount Invested'].sum()
     total_profit_loss = st.session_state.portfolio['Profit/ Loss'].sum()
@@ -31,9 +45,9 @@ def fetch_usd_to_inr_exchange_rate():
 # Fetch the current USD to INR exchange rate
 usd_to_inr_rate = fetch_usd_to_inr_exchange_rate()
 
-# Convert values from USD to INR
-st.session_state.portfolio['Current Value INR'] = st.session_state.portfolio['Current Value'] * usd_to_inr_rate
-st.session_state.portfolio['Amount Invested INR'] = st.session_state.portfolio['Amount Invested'] * usd_to_inr_rate
+# # Convert values from USD to INR
+# st.session_state.portfolio['Current Value INR'] = st.session_state.portfolio['Current Value'] * usd_to_inr_rate
+# st.session_state.portfolio['Amount Invested INR'] = st.session_state.portfolio['Amount Invested'] * usd_to_inr_rate
 
 
 total_value_inr = st.session_state.portfolio['Current Value INR'].sum()
@@ -57,6 +71,7 @@ col2.metric("Current Portfolio Value (INR)", f"₹{total_value_inr:,.2f}")
 
 
 stock_symbol = st.text_input('Stock Symbol', 'AAPL')
+currency = st.selectbox('Currency', ['USD', 'INR'])
 quantity = st.number_input('Quantity', min_value=0.01, step=0.01, format="%.2f")
 average_price = st.number_input('Average Purchase Price', min_value=0.01)
 purchase_date = st.date_input("Date of Purchase")  # Date of purchase input
@@ -66,13 +81,13 @@ add_button = st.button('Add to Portfolio')
 if 'portfolio' not in st.session_state:
     st.session_state.portfolio = pd.DataFrame(columns=['Stock Symbol', 'Currency', 'Quantity', 'Average Purchase Price', 'Date of Purchase', 'Current Price', 'Current Value', 'Amount Invested', 'Profit/ Loss', 'Profit/ Loss %'])
 
-# Check if the 'Currency' column exists, and add it if it doesn't
-if 'Currency' not in st.session_state.portfolio.columns:
-    # Assuming default currency is USD for existing stocks, adjust as needed
-    if stock_symbol.endswith('.NS') or stock_symbol.endswith('.ns'):
-        st.session_state.portfolio['Currency'] = 'INR'
-    else:
-        st.session_state.portfolio['Currency'] = 'USD'
+# # Check if the 'Currency' column exists, and add it if it doesn't
+# if 'Currency' not in st.session_state.portfolio.columns:
+#     # Assuming default currency is USD for existing stocks, adjust as needed
+#     if stock_symbol.endswith('.NS') or stock_symbol.endswith('.ns'):
+#         st.session_state.portfolio['Currency'] = 'INR'
+#     else:
+#         st.session_state.portfolio['Currency'] = 'USD'
 
 
 def add_stock_to_portfolio(stock_symbol, quantity, average_price, purchase_date):
@@ -179,7 +194,7 @@ def sell_stock_from_portfolio(index, sell_quantity):
 
 # Display the updated portfolio and add "Sell" buttons
 for index, row in st.session_state.portfolio.iterrows():
-    cols = st.columns([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2])
+    cols = st.columns([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1])
     # Example of displaying stock info - adjust according to your needs
     cols[0].write(row['Stock Symbol'])
     cols[1].write(row['Quantity'])
@@ -187,6 +202,8 @@ for index, row in st.session_state.portfolio.iterrows():
     sell_quantity = cols[9].number_input('Sell Qty', min_value=0.01, max_value=float(row['Quantity']), step=0.01, format="%.2f", key=f"sell_{index}")
     if cols[9].button('Sell', key=f"sell_btn_{index}"):
         sell_stock_from_portfolio(index, sell_quantity)
+    if cols[10].button('Sell All', key=f"sell_all_{index}"):
+        sell_stock_from_portfolio(index, row['Quantity'])
 
 def calculate_current_value():
     stock_values = {}
@@ -233,8 +250,6 @@ else:
 
 
 
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 if not st.session_state.portfolio.empty:
     stock_values = calculate_current_value()
@@ -310,32 +325,32 @@ def calculate_current_value_for_last_month_plotly():
 calculate_current_value_for_last_month_plotly()
 
 
-def calculate_current_value_for_last_month_plotly():
-    for _, row in st.session_state.portfolio.iterrows():
-        symbol = row['Stock Symbol']
-        # Fetch current stock price
-        stock_info = yf.Ticker(symbol)
-        try:
-            # Fetch stock history for the last month with daily intervals
-            stock_history = stock_info.history(period='1mo', interval='1d')
+# def calculate_current_value_for_last_month_plotly():
+#     for _, row in st.session_state.portfolio.iterrows():
+#         symbol = row['Stock Symbol']
+#         # Fetch current stock price
+#         stock_info = yf.Ticker(symbol)
+#         try:
+#             # Fetch stock history for the last month with daily intervals
+#             stock_history = stock_info.history(period='1mo', interval='1d')
 
-            # Create a Plotly figure
-            fig = go.Figure()
+#             # Create a Plotly figure
+#             fig = go.Figure()
 
-            # Add the time series data
-            fig.add_trace(go.Scatter(x=stock_history.index, y=stock_history['Close'], mode='lines', name=symbol))
+#             # Add the time series data
+#             fig.add_trace(go.Scatter(x=stock_history.index, y=stock_history['Close'], mode='lines', name=symbol))
 
-            # Update layout with title and axis labels
-            fig.update_layout(title=f'Stock Price of {symbol} in Last 30 Days',
-                            xaxis_title='Date',
-                            yaxis_title='Stock Price')
+#             # Update layout with title and axis labels
+#             fig.update_layout(title=f'Stock Price of {symbol} in Last 30 Days',
+#                             xaxis_title='Date',
+#                             yaxis_title='Stock Price')
 
-            # Display the figure in the Streamlit app
-            st.plotly_chart(fig)
+#             # Display the figure in the Streamlit app
+#             st.plotly_chart(fig)
 
-        except Exception as e:
-            # Handle errors and continue with the next iteration
-            st.error(f"Failed to fetch current price for {symbol}. Error: {e}")
-            continue
+#         except Exception as e:
+#             # Handle errors and continue with the next iteration
+#             st.error(f"Failed to fetch current price for {symbol}. Error: {e}")
+#             continue
 
-calculate_current_value_for_last_month_plotly()
+# calculate_current_value_for_last_month_plotly()
