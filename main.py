@@ -36,7 +36,7 @@ col2.metric("Current Portfolio Value", f"₹ {total_value:,.2f}")
 
 
 stock_symbol = st.text_input('Stock Symbol', 'AAPL')
-quantity = st.number_input('Quantity', min_value=1)
+quantity = st.number_input('Quantity', min_value=0.01, step=0.01, format="%.2f")
 average_price = st.number_input('Average Purchase Price', min_value=0.01)
 purchase_date = st.date_input("Date of Purchase")  # Date of purchase input
 add_button = st.button('Add to Portfolio')
@@ -130,7 +130,7 @@ for index, row in st.session_state.portfolio.iterrows():
     cols[0].write(row['Stock Symbol'])
     cols[1].write(row['Quantity'])
     # Continue for other columns...
-    sell_quantity = cols[9].number_input('Sell Qty', min_value=1, max_value=row['Quantity'], key=f"sell_{index}")
+    sell_quantity = cols[9].number_input('Sell Qty', min_value=0.01, max_value=float(row['Quantity']), step=0.01, format="%.2f", key=f"sell_{index}")
     if cols[9].button('Sell', key=f"sell_btn_{index}"):
         sell_stock_from_portfolio(index, sell_quantity)
 
