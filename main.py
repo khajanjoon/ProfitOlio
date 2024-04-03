@@ -23,10 +23,31 @@ else:
     total_profit_loss = 0
     total_profit_loss_percent = 0
 
-# Use st.metric to display the total amount invested and current value
+def fetch_usd_to_inr_exchange_rate():
+    exchange_rate_info = yf.Ticker("USDINR=X")
+    usd_to_inr = exchange_rate_info.history(period="1d")['Close'].iloc[-1]
+    return usd_to_inr
+
+# Fetch the current USD to INR exchange rate
+usd_to_inr_rate = fetch_usd_to_inr_exchange_rate()
+
+# Convert values from USD to INR
+st.session_state.portfolio['Current Value INR'] = st.session_state.portfolio['Current Value'] * usd_to_inr_rate
+st.session_state.portfolio['Amount Invested INR'] = st.session_state.portfolio['Amount Invested'] * usd_to_inr_rate
+
+
+total_value_inr = st.session_state.portfolio['Current Value INR'].sum()
+total_investment_inr = st.session_state.portfolio['Amount Invested INR'].sum()
+
 col1, col2 = st.columns(2)
-col1.metric("Total Amount Invested", f"₹ {total_investment:,.2f}")
-col2.metric("Current Portfolio Value", f"₹ {total_value:,.2f}")
+col1.metric("Total Amount Invested (INR)", f"₹{total_investment_inr:,.2f}")
+col2.metric("Current Portfolio Value (INR)", f"₹{total_value_inr:,.2f}")
+
+
+# # Use st.metric to display the total amount invested and current value
+# col1, col2 = st.columns(2)
+# col1.metric("Total Amount Invested", f"₹ {total_investment:,.2f}")
+# col2.metric("Current Portfolio Value", f"₹ {total_value:,.2f}")
 
 
 
