@@ -39,7 +39,18 @@ else:
 
 def fetch_usd_to_inr_exchange_rate():
     exchange_rate_info = yf.Ticker("USDINR=X")
-    usd_to_inr = exchange_rate_info.history(period="1d")['Close'].iloc[-1]
+    try:
+        # Attempt to fetch the exchange rate for the last day
+        usd_to_inr = exchange_rate_info.history(period="1d")['Close'].iloc[-1]
+    except IndexError:
+        # If there's no data for the last day, try fetching for the last 5 days and get the most recent
+        try:
+            usd_to_inr = exchange_rate_info.history(period="5d")['Close'].dropna().iloc[-1]
+        except IndexError:
+            # If there's still no data, you might need a more robust fallback
+            # This could be a static value or an error message indicating the data is not available
+            st.error("Failed to fetch the USD to INR exchange rate. Please try again later.")
+            usd_to_inr = None  # or a static fallback value if preferred
     return usd_to_inr
 
 # Fetch the current USD to INR exchange rate
@@ -224,6 +235,34 @@ def calculate_current_value():
             continue  # Skip this stock if its current price can't be fetched
     return stock_values
 
+def calculate_current_value_in_inr():
+    usd_to_inr_rate = fetch_usd_to_inr_exchange_rate()  # Ensure this fetches the current exchange rate
+    stock_values_in_inr = {}
+    
+    for _, row in st.session_state.portfolio.iterrows():
+        symbol = row['Stock Symbol']
+        quantity = row['Quantity']
+        currency = row['Currency']  # Ensure your portfolio has a 'Currency' column
+
+        # Fetch current stock price
+        stock_info = yf.Ticker(symbol)
+        try:
+            current_price_usd = stock_info.history(period='1d')['Close'][-1]
+            # If the stock is priced in USD, convert the price to INR
+            if currency == 'USD':
+                current_price_inr = current_price_usd * usd_to_inr_rate
+            else:
+                current_price_inr = current_price_usd  # Assuming the price is already in INR
+
+            # Calculate current value for this stock in INR and add to the dictionary
+            stock_values_in_inr[symbol] = current_price_inr * quantity
+        except IndexError:
+            st.error(f"Failed to fetch current price for {symbol}.")
+            continue  # Skip this stock if its current price can't be fetched
+    
+    return stock_values_in_inr
+
+
 
 # Display the updated portfolio
 st.write('Your Portfolio', st.session_state.portfolio)
@@ -255,7 +294,7 @@ else:
 
 
 if not st.session_state.portfolio.empty:
-    stock_values = calculate_current_value()
+    stock_values = calculate_current_value_in_inr()
     invested_amounts = st.session_state.portfolio.groupby('Stock Symbol')['Amount Invested INR'].sum()
 
     if stock_values and not invested_amounts.empty:
