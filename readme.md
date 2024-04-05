@@ -4,10 +4,4 @@ or streamlit run (path of file)
 
 basic structure, add features anf whichever is good, merge it
 
-<object width="425" height="350">
-  <param name="movie" value="https://youtu.be/t1aObw-710Y" />
-  <param name="wmode" value="transparent" />
-  <embed src="http://www.youtube.com/user/wwwLoveWatercom?v=BTRN1YETpyg"
-         type="application/x-shockwave-flash"
-         wmode="transparent" width="425" height="350" />
-</object>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/t1aObw-710Y?si=MU2W-UiQbeKu3SP0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
