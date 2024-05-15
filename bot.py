@@ -28,5 +28,5 @@ def main():
             response = chat_with_gpt(user_input)
             st.write("Chatbot:", response)
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     main()
