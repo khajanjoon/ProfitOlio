@@ -1,6 +1,6 @@
 streamlit==1.32.2
 yfinance==0.2.31
-pandas==1.16.0
+pandas==2.1.1
 openai==1.17.0
 prophet==1.1.5
 plotly==5.18.0
