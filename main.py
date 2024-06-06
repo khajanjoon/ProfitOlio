@@ -269,3 +269,57 @@ def calculate_current_value_for_last_month_plotly():
             continue
 
 calculate_current_value_for_last_month_plotly()
+
+def profit_loss_bar_plot(period='1d',interval='1h'):
+    for _, row in st.session_state.portfolio.iterrows():
+        symbol = row['Stock Symbol']
+        stock_info = yf.Ticker(symbol)
+        try:
+            stock_history = stock_info.history(period=period, interval=interval)
+            fig = go.Figure()    
+            if row['Current Value'] > row['Amount Invested']:
+                fig.add_trace(go.Bar(x=stock_history.index, y=abs(stock_history['Close'] - row['Amount Invested']), name='Profit', marker_color='green'))
+            else:
+                fig.add_trace(go.Bar(x=stock_history.index, y=abs(stock_history['Close'] - row['Amount Invested']), name='Loss', marker_color='red'))
+
+            fig.update_layout(title=f'Profit/Loss Overview of {symbol}',
+                              xaxis_title='Date',
+                              yaxis_title='Profit/Loss Amount',
+                              barmode='relative')
+
+            st.plotly_chart(fig)
+
+        except Exception as e:
+            st.error(f"Failed to plot Profit Loss Overview for {symbol}. Error: {e}")
+
+
+period = st.radio('Select Period', ['1d', '1wk', '1mo', '3mo', '1y','5y'], index=0)
+
+st.markdown(
+    """
+    <style>
+    .stRadio > div[role="radiogroup"] {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .stRadio > div[role="radiogroup"] > label {
+        flex: 1;
+        margin-right: 10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+
+if period == '1mo':
+    profit_loss_bar_plot(period, '1d')
+if period == '3mo':
+    profit_loss_bar_plot(period, '1wk')
+if period == '1y':
+    profit_loss_bar_plot(period, '1mo')
+if period == '5y':
+    profit_loss_bar_plot(period, '3mo')
