@@ -82,8 +82,10 @@ git clone [https://github.com/harshsinha-12/ProfitOlio.git](https://github.com/h
 
     Demo
 
-Check [ProfitOlio](https://profitolio.streamlit.app/)
+Check: [ProfitOlio](https://profitolio.streamlit.app/)
+
+Check YouTube Demo: [YouTube](https://youtu.be/t1aObw-710Y)
 
 Click on the image below to watch the demo video of the application.
 
-[![ProfitOlio Stage - 1 Demo Screen Recording for Project Demonstration](https://github.com/harshsinha-12/ProfitOlio/blob/main/thumbnail.png?raw=true)](https://www.youtube.com/watch?v=t1aObw-710Y "Click to watch on YouTube")
+![ProfitOlio Stage - 1 Demo Screen Recording for Project Demonstration](https://github.com/harshsinha-12/ProfitOlio/blob/main/thumbnail.png?raw=true)
