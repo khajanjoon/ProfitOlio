@@ -86,6 +86,4 @@ Check: [ProfitOlio](https://profitolio.streamlit.app/)
 
 Check YouTube Demo: [YouTube](https://youtu.be/5G_8I19g_-Q)
 
-Click on the image below to watch the demo video of the application.
-
-![ProfitOlio Stage - 1 Demo Screen Recording for Project Demonstration](https://github.com/harshsinha-12/ProfitOlio/blob/main/thumbnail.png?raw=true)
+![ProfitOlio Stage - 2 Demo Screen Recording for Project Demonstration](https://github.com/harshsinha-12/ProfitOlio/blob/main/Stage-2Screenshot.png)
