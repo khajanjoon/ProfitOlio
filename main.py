@@ -293,7 +293,7 @@ def profit_loss_bar_plot(period='1d',interval='1h'):
             st.error(f"Failed to plot Profit Loss Overview for {symbol}. Error: {e}")
 
 
-period = st.radio('Select Period', ['1d', '1wk', '1mo', '3mo', '1y','5y'], index=0)
+period = st.radio('Select Period', ['1mo', '3mo', '1y','5y'], index=0)
 
 st.markdown(
     """
