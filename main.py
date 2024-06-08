@@ -175,7 +175,7 @@ if 'user_id' in st.session_state:
                     unsafe_allow_html=True,
                 )
 
-                st.markdown('<p class="big-font">#Stock Symbol (in Caps 🅰)</p>', unsafe_allow_html=True)
+                st.markdown('<p class="big-font">Stock Symbol (in Caps 🅰)</p>', unsafe_allow_html=True)
 
                 stock_symbol = st.text_input('Stock Symbol (in Caps 🅰)', 'AAPL').upper()
                 st.text('Note: For Indian stocks, use the ".NS" extension. For US stocks, use the stock symbol only.')
