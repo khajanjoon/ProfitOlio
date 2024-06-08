@@ -179,7 +179,7 @@ if 'user_id' in st.session_state:
                 stock_symbol = st.text_input('Stock Symbol (in Caps 🅰)', 'AAPL').upper()
                 st.text('Note: For Indian stocks, use the ".NS" extension. For US stocks, use the stock symbol only.')
                 st.text('For example, for Reliance Industries, use "RELIANCE.NS" and for Apple Inc., use "AAPL", for Cryptocurrency like Bitcoin use "BTC-USD".')
-                st.text('For a list of stock symbols, visit https://in.finance.yahoo.com/ or https://finance.yahoo.com/')
+                st.markdown('For a list of stock symbols, visit [Yahoo Finance India](https://in.finance.yahoo.com/) or [Yahoo Finance](https://finance.yahoo.com/)')
                 currency = st.selectbox('Currency', ['USD', 'INR'])
                 st.text('Note: For Indian stocks, the currency is INR. For US stocks and cryptocurrencies, the currency is USD.')
                 quantity = st.number_input('Quantity', min_value=0.01, step=0.01, format="%.2f")
