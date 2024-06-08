@@ -15,8 +15,6 @@ from plotly import graph_objs as go
 import plotly.graph_objects as go
 
 
-
-
 # Connection to SQLite database
 conn = sqlite3.connect('finance.db') 
 c = conn.cursor()
@@ -163,28 +161,12 @@ if 'user_id' in st.session_state:
                 col1, col2 = st.columns(2)
                 col1.metric("Total Amount Invested (INR)", f"₹{total_investment_inr:,.2f}")
                 col2.metric("Current Portfolio Value (INR)", f"₹{total_value_inr:,.2f}", delta=f"₹{s:.2f} ({sp:.2f}%)")
-                
-                # st.markdown(
-                #     """
-                #     <style>
-                #     .big-font {
-                #         font-size:20px !important;
-                #     }
-                #     </style>
-                #     """, 
-                #     unsafe_allow_html=True,
-                # )
 
-                # st.markdown('<p class="big-font">Stock Symbol (in Caps 🅰)</p>', unsafe_allow_html=True)
                 stock_symbol = st.text_input('Stock Symbol (in Caps 🅰)', 'AAPL').upper()
-                st.text('Note: For Indian stocks, use the ".NS" extension. For US stocks, use the stock symbol only.')
-                st.text('For example, for Reliance Industries, use "RELIANCE.NS" and for Apple Inc., use "AAPL", for Cryptocurrency like Bitcoin use "BTC-USD".')
-                st.markdown('For a list of stock symbols, visit or [Yahoo Finance](https://finance.yahoo.com/)')
                 currency = st.selectbox('Currency', ['USD', 'INR'])
-                st.text('Note: For Indian stocks, the currency is INR. For US stocks and cryptocurrencies, the currency is USD.')
                 quantity = st.number_input('Quantity', min_value=0.01, step=0.01, format="%.2f")
-                average_price = st.number_input('Average Purchase/Sell Price', min_value=0.01)
-                purchase_date = st.date_input("Date of Purchase/Sell")
+                average_price = st.number_input('Average Purchase Price', min_value=0.01)
+                purchase_date = st.date_input("Date of Purchase")
                 # columns for button for alignment
                 col1, col2 = st.columns(2)
 
@@ -474,7 +456,7 @@ if 'user_id' in st.session_state:
                         except Exception as e:
                             st.error(f"Failed to fetch current price for {symbol}. Error: {e}")
                             continue
-
+                st.markdown("### Stock Price Overview")
                 period = st.radio('Select Period', ['1mo', '3mo', '1y','5y'], index=0, key='Stock Price Plot')
 
                 st.markdown(
@@ -503,6 +485,53 @@ if 'user_id' in st.session_state:
                     calculate_current_value_for_last_month_plotly(period,'1wk')
                 if period == '5y':
                     calculate_current_value_for_last_month_plotly(period,'1mo')
+
+                def gross_profit_bar_plot(frequency):
+                    for _, row in st.session_state.portfolio.iterrows():
+                        symbol = row['Stock Symbol']
+                        stock_info = yf.Ticker(symbol)
+                        try:
+                            if frequency == 'Annual':
+                                income_statement = stock_info.financials
+                                title = 'Annual'
+                            elif frequency == 'Quarterly':
+                                income_statement = stock_info.quarterly_financials
+                                title = 'Quarterly'
+                            else:
+                                st.error("Invalid frequency selected. Please choose 'Annual' or 'Quarterly'.")
+                                return
+                        
+                            fig = go.Figure()
+                            fig.add_trace(go.Bar(x=income_statement.loc['Gross Profit'].index, y=income_statement.loc['Gross Profit'], name=f'{title} Gross Profit'))
+                            fig.update_layout(title=f'{title} Gross Profit of {symbol}',
+                                        xaxis_title='Date',
+                                        yaxis_title='Gross Profit Amount',
+                                        barmode='relative')
+
+                            st.plotly_chart(fig)
+
+                        except Exception as e:
+                            st.error(f"Failed to plot Gross Profit for {symbol}. Error: {e}")
+                st.markdown("### Gross Profit Overview")
+                frequency = st.radio('Select Frequency', ['Annual', 'Quarterly'], index=0, key='Gross Profit Plot')
+                st.markdown(
+                    """
+                    <style>
+                    .stRadio > div[role="radiogroup"] {
+                        display: flex;
+                        flex-direction: row;
+                        flex-wrap: wrap;
+                    }
+
+                    .stRadio > div[role="radiogroup"] > label {
+                        flex: 1;
+                        margin-right: 10px;
+                    }
+                    </style>
+                    """,
+                    unsafe_allow_html=True
+                )
+                gross_profit_bar_plot(frequency)
                 
 
             if selected == "P&L to Date":
