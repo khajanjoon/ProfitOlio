@@ -164,7 +164,7 @@ if 'user_id' in st.session_state:
                 col1.metric("Total Amount Invested (INR)", f"₹{total_investment_inr:,.2f}")
                 col2.metric("Current Portfolio Value (INR)", f"₹{total_value_inr:,.2f}", delta=f"₹{s:.2f} ({sp:.2f}%)")
                 
-                st.markdown(
+                st.text_input(
                     """
                     <style>
                     .big-font {
@@ -175,7 +175,7 @@ if 'user_id' in st.session_state:
                     unsafe_allow_html=True,
                 )
 
-                st.markdown('<p class="big-font">Stock Symbol (in Caps 🅰)</p>', unsafe_allow_html=True)
+                st.text_input('<p class="big-font">Stock Symbol (in Caps 🅰)</p>', unsafe_allow_html=True)
                 stock_symbol = st.text_input('', 'AAPL').upper()
                 st.text('Note: For Indian stocks, use the ".NS" extension. For US stocks, use the stock symbol only.')
                 st.text('For example, for Reliance Industries, use "RELIANCE.NS" and for Apple Inc., use "AAPL", for Cryptocurrency like Bitcoin use "BTC-USD" as example.')
