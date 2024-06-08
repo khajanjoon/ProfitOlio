@@ -167,8 +167,8 @@ if 'user_id' in st.session_state:
                 stock_symbol = st.text_input('Stock Symbol (in Caps 🅰)', 'AAPL').upper()
                 currency = st.selectbox('Currency', ['USD', 'INR'])
                 quantity = st.number_input('Quantity', min_value=0.01, step=0.01, format="%.2f")
-                average_price = st.number_input('Average Purchase Price', min_value=0.01)
-                purchase_date = st.date_input("Date of Purchase")
+                average_price = st.number_input('Average Purchase/Sell Price', min_value=0.01)
+                purchase_date = st.date_input("Date of Purchase/Sell")
                 # columns for button for alignment
                 col1, col2 = st.columns(2)
 
