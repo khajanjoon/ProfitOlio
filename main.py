@@ -616,6 +616,8 @@ if 'user_id' in st.session_state:
 
             if selected == "Widgets":
                 stock_name = st.text_input("Stock Name", "INFY")
+                st.markdown('''Enter only Indian stock names like INFY, TCS, etc. with their usual symbols
+                            for example, for Reliance Industries, use "RELIANCE.''')
 
                 # Define the HTML content with the widget
                 html_content = f"""
