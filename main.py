@@ -72,7 +72,18 @@ choice = st.sidebar.selectbox("Menu", menu)
 
 if choice == "Home":
     st.subheader("Home")
-    st.write("Welcome to the Portfolio Management System")
+    st.markdown(
+    """
+    <style>
+    .big-font {
+        font-size:30px !important;
+    }
+    </style>
+    """, 
+    unsafe_allow_html=True,
+)
+
+    st.markdown('<p class="big-font">Welcome to the Portfolio Management System</p>', unsafe_allow_html=True)
 
 elif choice == "Login":
     username = st.sidebar.text_input("Username")
