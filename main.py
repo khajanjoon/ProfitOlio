@@ -163,6 +163,9 @@ if 'user_id' in st.session_state:
                 col2.metric("Current Portfolio Value (INR)", f"₹{total_value_inr:,.2f}", delta=f"₹{s:.2f} ({sp:.2f}%)")
 
                 stock_symbol = st.text_input('Stock Symbol (in Caps 🅰)', 'AAPL').upper()
+                st.text('Note: For Indian stocks, use the ".NS" extension with currency as INR. For US stocks, use the stock symbol only with currency as USD.')
+                st.text('For example, for Reliance Industries, use "RELIANCE.NS" and for Apple Inc., use "AAPL", for Cryptocurrencies like Bitcoin use "BTC-USD"')
+                st.markdown('For a list of stock symbols, visit [Yahoo Finance India](https://in.finance.yahoo.com/) or [Yahoo Finance](https://finance.yahoo.com/)')
                 currency = st.selectbox('Currency', ['USD', 'INR'])
                 quantity = st.number_input('Quantity', min_value=0.01, step=0.01, format="%.2f")
                 average_price = st.number_input('Average Purchase Price', min_value=0.01)
