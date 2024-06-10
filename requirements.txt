@@ -5,3 +5,4 @@ openai==1.17.0
 prophet==1.1.5
 plotly==5.18.0
 streamlit-option-menu
+numpy==1.26.3
