@@ -443,19 +443,20 @@ if 'user_id' in st.session_state:
                             st.session_state.portfolio.drop(index, inplace=True)
                         else:
                             existing_average_price = st.session_state.portfolio.at[index, 'Average Purchase Price']
-                            existing_amount_invested = st.session_state.portfolio.at[index, 'Amount Invested'] - quantity * average_price
+                            average_price = st.session_state.portfolio.at[index, 'Average Purchase Price']
+                            new_amount_invested = st.session_state.portfolio.at[index, 'Amount Invested'] - quantity * average_price
                             #new_quantity = existing_quantity - quantity
                         #new_average_price = ((existing_average_price * existing_quantity) + (average_price * quantity)) / new_quantity
                         #new_amount_invested = existing_amount_invested - (quantity * average_price)
                             new_current_value = new_quantity * current_price
-                            new_profit_loss = new_current_value - existing_amount_invested
-                            new_profit_loss_percent = (new_profit_loss / existing_amount_invested) * 100 if existing_amount_invested != 0 else 0
+                            new_profit_loss = new_current_value - new_amount_invested
+                            new_profit_loss_percent = (new_profit_loss / new_amount_invested) * 100 if new_amount_invested != 0 else 0
                         
                             st.session_state.portfolio.at[index, 'Quantity'] = new_quantity
                         #st.session_state.portfolio.at[index, 'Average Purchase Price'] = new_average_price
                             st.session_state.portfolio.at[index, 'Current Price'] = current_price
                             st.session_state.portfolio.at[index, 'Current Value'] = new_current_value
-                            st.session_state.portfolio.at[index, 'Amount Invested'] = existing_amount_invested
+                            st.session_state.portfolio.at[index, 'Amount Invested'] = new_amount_invested
                             st.session_state.portfolio.at[index, 'Profit/ Loss'] = new_profit_loss
                             st.session_state.portfolio.at[index, 'Profit/ Loss %'] = new_profit_loss_percent
                     else:
