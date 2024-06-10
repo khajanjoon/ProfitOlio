@@ -443,7 +443,7 @@ if 'user_id' in st.session_state:
                             st.session_state.portfolio.drop(index, inplace=True)
                         else:
                             existing_average_price = st.session_state.portfolio.at[index, 'Average Purchase Price']
-                            existing_amount_invested = st.session_state.portfolio.at[index, 'Amount Invested'] - amount_invested_new_stock
+                            existing_amount_invested = st.session_state.portfolio.at[index, 'Amount Invested'] - quantity * average_price
                             #new_quantity = existing_quantity - quantity
                         #new_average_price = ((existing_average_price * existing_quantity) + (average_price * quantity)) / new_quantity
                         #new_amount_invested = existing_amount_invested - (quantity * average_price)
