@@ -13,7 +13,8 @@ from prophet import Prophet
 from prophet.plot import plot_plotly
 from plotly import graph_objs as go
 import plotly.graph_objects as go
-
+import datetime
+import time
 
 # Connection to SQLite database
 conn = sqlite3.connect('finance.db') 
@@ -65,6 +66,164 @@ def get_user_id(username):
     result = c.fetchone()
     return result[0] if result else None
 
+def home():
+    def get_stock_data():
+        nifty = yf.Ticker("^NSEI")
+        sensex = yf.Ticker("^BSESN")
+        nifty_data = nifty.history(period="2d", interval="5m")
+        sensex_data = sensex.history(period="2d", interval="5m")
+        # Get the previous day's close, which is the last entry from the first day
+        previous_nifty_close = nifty_data.iloc[-1]['Close'] if nifty_data.index[-1].date() != datetime.date.today() else nifty_data.iloc[-2]['Close']
+        previous_sensex_close = sensex_data.iloc[-1]['Close'] if sensex_data.index[-1].date() != datetime.date.today() else sensex_data.iloc[-2]['Close']
+
+        return {
+            "nifty_data": nifty_data[nifty_data.index.date == datetime.date.today()],
+            "sensex_data": sensex_data[sensex_data.index.date == datetime.date.today()],
+            "previous_nifty_close": previous_nifty_close,
+            "previous_sensex_close": previous_sensex_close
+        }    
+
+    # Title and Page Config
+    #st.set_page_config(page_title="Market Monitor", layout="wide")
+
+    # Fetch data
+    market_data = get_stock_data()
+    nifty_data = market_data['nifty_data']
+    sensex_data = market_data['sensex_data']
+
+    # Custom Colors
+    #primaryColor = "#3498db"  # Adjust to your preference
+    primaryColor = "#2ecc71"
+
+    # Layout with Columns
+    col1, col2 = st.columns(2)
+
+
+
+    # Calculate the progress for the progress bars based on current, high, and low values
+    def calculate_progress(current, high, low):
+        if high == low:
+            return 0
+        return int((current - low) / (high - low) * 100)
+
+    # Calculate color based on comparison with previous close
+    def calculate_color(current, previous_close):
+        return "#2ecc71" if current > previous_close else "#e74c3c"
+
+    # Nifty Chart and Data
+    nifty_color = calculate_color(nifty_data['Close'].iloc[-1], nifty_data['Close'].iloc[0])
+    nifty_chart = go.Figure(data=[go.Candlestick(x=nifty_data.index,
+                                                open=nifty_data['Open'],
+                                                high=nifty_data['High'],
+                                                low=nifty_data['Low'],
+                                                close=nifty_data['Close'],
+                                                increasing_line_color='#2ecc71', decreasing_line_color='#e74c3c')])
+    nifty_chart.update_layout(title='Nifty 50 Day Chart', xaxis_title='Time', yaxis_title='Price')
+    with col1:
+        st.plotly_chart(nifty_chart, use_container_width=True)
+        metric_col1, metric_col2 = st.columns(2)
+        with metric_col1:
+            st.metric(
+            label="Current",
+            value="{:.2f}".format(nifty_data['Close'].iloc[-1]),
+            delta="{:.2f}  points from day's open".format(nifty_data['Close'].iloc[-1] - nifty_data['Open'].iloc[0])
+        )  
+            st.metric(
+            label="Day's High",
+            value="{:.2f}".format(nifty_data['High'].max()),
+            delta=None
+        )
+        with metric_col2:   
+
+            st.metric(
+            label="Open",
+            value="{:.2f}".format(nifty_data['Open'].iloc[0]),
+            delta=None
+        )
+            st.markdown("""
+    <style>
+    .stMetric {
+        margin-bottom: 0px;  /* Adjust the margin to reduce space */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+            st.metric(
+            label="Day's Low",
+            value="{:.2f}".format(nifty_data['Low'].min()),
+            delta=None
+        )
+        nifty_progress = calculate_progress(nifty_data['Close'].iloc[-1], nifty_data['High'].max(), nifty_data['Low'].min())
+        st.progress(nifty_progress)
+
+
+    # Sensex Chart and Data
+    sensex_color = calculate_color(sensex_data['Close'].iloc[-1], sensex_data['Close'].iloc[0])
+    sensex_chart = go.Figure(data=[go.Candlestick(x=sensex_data.index,
+                                                open=sensex_data['Open'],
+                                                high=sensex_data['High'],
+                                                low=sensex_data['Low'],
+                                                close=sensex_data['Close'],
+                                                increasing_line_color='#2ecc71', decreasing_line_color='#e74c3c')])
+    sensex_chart.update_layout(title='Sensex Day Chart', xaxis_title='Time', yaxis_title='Price')
+    with col2:
+        st.plotly_chart(sensex_chart, use_container_width=True)
+        metric_col1, metric_col2 = st.columns(2)
+        with metric_col1:
+            st.metric(
+            label="Current",
+            value="{:.2f}".format(sensex_data['Close'].iloc[-1]),
+            delta="{:.2f} points from day's open".format(sensex_data['Close'].iloc[-1] - sensex_data['Open'].iloc[0])
+        )
+            st.metric(
+                label="Day's High",
+                value="{:.2f}".format(sensex_data['High'].max()),
+                delta=None
+        )
+        with metric_col2:
+            st.metric(
+            label="Open",
+            value="{:.2f}".format(sensex_data['Open'].iloc[0]),
+            delta=None
+    )
+            st.markdown("""
+    <style>
+    .stMetric {
+    margin-bottom: 0px;  /* Adjust the margin to reduce space */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+            st.metric(
+                label="Day's Low",
+                value="{:.2f}".format(sensex_data['Low'].min()),
+                delta=None
+        )
+        sensex_progress = calculate_progress(sensex_data['Close'].iloc[-1], sensex_data['High'].max(), sensex_data['Low'].min())
+        st.progress(sensex_progress)
+
+    # Automatic data refresh setup
+    if 'next_run_time' not in st.session_state or time.time() > st.session_state['next_run_time']:
+        st.session_state['next_run_time'] = time.time() + 120  # 120 seconds is 2 minutes
+        st.experimental_rerun()
+
+    # Function to get live stock data and previous day's close
+    def get_stock_data():
+        nifty = yf.Ticker("^NSEI")
+        sensex = yf.Ticker("^BSESN")
+        # Fetch data for the last two days
+        nifty_data = nifty.history(period="2d", interval="5m")
+        sensex_data = sensex.history(period="2d", interval="5m")
+        
+        # Get the previous day's close, which is the last entry from the first day
+        previous_nifty_close = nifty_data.iloc[-1]['Close'] if nifty_data.index[-1].date() != datetime.date.today() else nifty_data.iloc[-2]['Close']
+        previous_sensex_close = sensex_data.iloc[-1]['Close'] if sensex_data.index[-1].date() != datetime.date.today() else sensex_data.iloc[-2]['Close']
+
+        return {
+            "nifty_data": nifty_data[nifty_data.index.date == datetime.date.today()],
+            "sensex_data": sensex_data[sensex_data.index.date == datetime.date.today()],
+            "previous_nifty_close": previous_nifty_close,
+            "previous_sensex_close": previous_sensex_close
+        }
+
 # For login sidebar
 st.title('ProfitOlio')
 menu = ["Home", "Login", "Signup", "Logout"]
@@ -84,6 +243,7 @@ if choice == "Home":
 )
 
     st.markdown('<p class="big-font">Welcome to the Portfolio Management System</p>', unsafe_allow_html=True)
+    home()
 
 elif choice == "Login":
     username = st.sidebar.text_input("Username")
@@ -117,13 +277,14 @@ if 'user_id' in st.session_state:
             st.sidebar.success(f"Logged in successfully as {username}")
             selected = option_menu(
             menu_title = None,
-            options = ['Portfolio', 'Charts', 'FinBot', 'P&L to Date', 'Price Predictor', 'Financial Statement','Widgets'],
-            icons = ['🍎', '🍌', '🍊', '🫡', '📈', '₹', '🥳'],
+            options = ['Portfolio', 'Charts', 'Indian Market', 'FinBot', 'P&L to Date', 'Price Predictor', 'Financial Statement','Widgets'],
+            icons = ['🍎', '🍌', '🍊', '🫡', '📈', '₹', '🥳', '😇'],
             menu_icon = "cast",
             default_index = 0,
             orientation = "horizontal",
             )
-
+            if selected == "Indian Market":
+                home()
             if selected == "Portfolio":
                 st.title('Portfolio Management System')
 
