@@ -70,7 +70,7 @@ def get_user_id(username):
 
 def home():
     def get_stock_data():
-        st.title('Indian Market Monitor')
+        st.markdown('### Indian Market Monitor')
         nifty = yf.Ticker("^NSEI")
         sensex = yf.Ticker("^BSESN")
         nifty_data = nifty.history(period="2d", interval="5m")
@@ -369,12 +369,12 @@ def stock_metrics():
         st.write("Please enter a valid stock symbol.")
 
 # For login sidebar
-st.title('ProfitOlio')
+st.title('ProfitOlio - Portfolio Management System')
 menu = ["Home", "Login", "Signup", "Logout", "About"]
 choice = st.sidebar.selectbox("Menu", menu)
 
 if choice == "Home":
-    st.subheader("Home")
+    st.markdown("### Home Page")
     st.markdown(
     """
     <style>
@@ -386,11 +386,12 @@ if choice == "Home":
     unsafe_allow_html=True,
 )
 
-    st.markdown('<p class="big-font">Welcome to the Portfolio Management System</p>', unsafe_allow_html=True)
+    st.markdown("### Welcome to the Portfolio Management System")
     home()
 
 
 elif choice == "Signup":
+    st.markdown("### Signup Page")
     home()
     new_username = st.sidebar.text_input("New Username")
     new_password = st.sidebar.text_input("New Password", type='password')
@@ -402,6 +403,7 @@ elif choice == "Signup":
             st.warning("Username already exists")
 
 elif choice == "Logout":
+    st.markdown("### Logout Page")
     home()
     if st.sidebar.button("Logout"):
         if 'user_id' in st.session_state:
