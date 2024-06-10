@@ -15,6 +15,8 @@ from plotly import graph_objs as go
 import plotly.graph_objects as go
 import datetime
 import time
+import numpy as np
+import plotly.express as px
 
 # Connection to SQLite database
 conn = sqlite3.connect('finance.db') 
@@ -68,6 +70,7 @@ def get_user_id(username):
 
 def home():
     def get_stock_data():
+        st.title('Indian Market Monitor')
         nifty = yf.Ticker("^NSEI")
         sensex = yf.Ticker("^BSESN")
         nifty_data = nifty.history(period="2d", interval="5m")
@@ -223,6 +226,147 @@ def home():
             "previous_nifty_close": previous_nifty_close,
             "previous_sensex_close": previous_sensex_close
         }
+    
+def stock_metrics():
+    def calculate_beta(asset_returns, market_returns):
+        covariance_matrix = np.cov(asset_returns, market_returns)
+        beta = covariance_matrix[0, 1] / covariance_matrix[1, 1]
+        return beta
+
+    # Streamlit App
+    st.title("Stock Metrics Dashboard")
+
+    # Get user input
+    stock_symbol = st.text_input("Enter stock symbol", 'AAPL')  # Default to AAPL for demonstration
+
+    # Timeframe selection
+    timeframe = st.selectbox("Select timeframe", ["1 month", "3 months", "6 months", "1 year", "3 years", "5 years"])
+
+    # Define date range based on selected timeframe
+    end_date = pd.to_datetime("today").strftime("%Y-%m-%d")
+    if timeframe == "1 month":
+        start_date = (pd.to_datetime("today") - pd.DateOffset(months=1)).strftime("%Y-%m-%d")
+    elif timeframe == "3 months":
+        start_date = (pd.to_datetime("today") - pd.DateOffset(months=3)).strftime("%Y-%m-%d")
+    elif timeframe == "6 months":
+        start_date = (pd.to_datetime("today") - pd.DateOffset(months=6)).strftime("%Y-%m-%d")
+    elif timeframe == "1 year":
+        start_date = (pd.to_datetime("today") - pd.DateOffset(years=1)).strftime("%Y-%m-%d")
+    elif timeframe == "3 years":
+        start_date = (pd.to_datetime("today") - pd.DateOffset(years=3)).strftime("%Y-%m-%d")
+    else:  # "5 years"
+        start_date = (pd.to_datetime("today") - pd.DateOffset(years=5)).strftime("%Y-%m-%d")
+
+
+    if stock_symbol:
+        try:
+            # Fetch stock data using yfinance
+            stock_data = yf.download(stock_symbol, start=start_date, end=end_date)
+            # Calculate daily returns of the stock
+            stock_returns = stock_data['Adj Close'].pct_change().dropna()
+
+            # Fetch market data (e.g., S&P 500 index or BSE Sensex)
+            if stock_symbol.endswith('.NS'):
+                market_data = yf.download('^BSESN', start=start_date, end=end_date)
+            else:
+                market_data = yf.download('^GSPC', start=start_date, end=end_date)
+            # Calculate daily returns of the market
+            market_returns = market_data['Adj Close'].pct_change().dropna()
+
+            # Align the data by date
+            combined_data = pd.merge(stock_returns, market_returns, left_index=True, right_index=True, how='inner')
+            combined_data.columns = ['Stock_Returns', 'Market_Returns']
+
+            # Calculate beta
+            beta = calculate_beta(combined_data['Stock_Returns'], combined_data['Market_Returns'])
+
+            # Display beta
+            beta = round(beta, 2)
+            beta_pct = round((1 - beta) * 100, 2) if beta < 1 else round((beta - 1) * 100, 2)
+            
+
+            # Plot the returns using Plotly
+            st.write("### Stock Beta")
+            st.write(f"Beta for {stock_symbol} over {timeframe}: {beta} i.e., the stock is {beta_pct}% {'more' if beta > 1 else 'less'} volatile than the market.")
+            fig = px.line(combined_data, x=combined_data.index, y=['Stock_Returns', 'Market_Returns'],
+                        labels={'value': 'Returns', 'index': 'Date'},
+                        title=f"{stock_symbol} vs Market Returns ({timeframe})")
+            st.plotly_chart(fig)
+
+        except Exception as e:
+            st.write("An error occurred: ", e)
+    else:
+        st.write("Please enter a valid stock symbol.")
+
+    def calculate_var(asset_returns, confidence_level=0.05):
+        return np.percentile(asset_returns, confidence_level * 100)
+
+    # Ensure stock_symbol, start_date, and end_date are defined elsewhere in your code
+    if stock_symbol:
+        try:
+            # Fetch stock data using yfinance
+            stock_data = yf.download(stock_symbol, start=start_date, end=end_date)
+            # Calculate daily returns of the stock
+            stock_returns = stock_data['Adj Close'].pct_change().dropna()
+
+            # Calculate VaR
+            var_95 = calculate_var(stock_returns, confidence_level=0.05)
+            var_99 = calculate_var(stock_returns, confidence_level=0.01)
+
+            var_95_round = round(var_95, 2)
+            var_99_round = round(var_99, 2)
+
+            # Plot the returns using Plotly
+            st.write("### Stock VaR")
+            st.write(f"Value at Risk (95% confidence) for {stock_symbol} over the selected timeframe is {var_95_round}, i.e., the stock is expected to lose at most {round(var_95_round * 100 * -1)}% in value over {timeframe} with 95% confidence.")
+            st.write(f"Value at Risk (99% confidence) for {stock_symbol} over the selected timeframe is {var_99_round}, i.e., the stock is expected to lose at most {round(var_99_round * 100 * -1)}% in value over {timeframe} with 99% confidence.")
+            fig = px.line(stock_returns, x=stock_returns.index, y=stock_returns,
+                        labels={'value': 'Returns', 'index': 'Date'},
+                        title=f"{stock_symbol} VaR ({timeframe})")
+            st.plotly_chart(fig)
+            
+
+        except Exception as e:
+            st.write("An error occurred: ", e)
+    else:
+        st.write("Please enter a valid stock symbol.")
+
+
+    def calculate_cagr(data):
+        n = len(data) / 252  # 252 trading days in a year
+        return (data[-1] / data[0]) ** (1/n) - 1
+
+    def calculate_sharpe_ratio(asset_returns, risk_free_rate=0.01):
+        excess_returns = asset_returns - risk_free_rate / 252
+        return np.mean(excess_returns) / np.std(excess_returns) * np.sqrt(252)
+
+
+    if stock_symbol:
+        try:
+            # Fetch stock data using yfinance
+            stock_data = yf.download(stock_symbol, start=start_date, end=end_date)
+            # Calculate daily returns of the stock
+            stock_returns = stock_data['Adj Close'].pct_change().dropna()
+
+            # Calculate VaR
+            var_95 = calculate_var(stock_returns, confidence_level=0.05)
+            var_99 = calculate_var(stock_returns, confidence_level=0.01)
+
+            # Calculate CAGR
+            cagr = calculate_cagr(stock_data['Adj Close'])
+
+            # Calculate Sharpe Ratio
+            sharpe_ratio = calculate_sharpe_ratio(stock_returns)
+
+            # Display Performance Metrics
+            st.header("Performance Tracking")
+            st.write(f"### CAGR for {stock_symbol} over {timeframe}: {cagr:.2%}")
+            st.write(f"### Sharpe Ratio i.e. Risk-adjusted returns for {stock_symbol} over {timeframe}: {sharpe_ratio:.2f}")
+
+        except Exception as e:
+            st.write("An error occurred: ", e)
+    else:
+        st.write("Please enter a valid stock symbol.")
 
 # For login sidebar
 st.title('ProfitOlio')
@@ -406,14 +550,16 @@ if 'user_id' in st.session_state:
             st.sidebar.success(f"Logged in successfully as {username}")
             selected = option_menu(
             menu_title = None,
-            options = ['Portfolio', 'Charts', 'Indian Market', 'FinBot', 'P&L to Date', 'Price Predictor', 'Financial Statement','Widgets'],
-            icons = ['🍎', '🍌', '🍊', '🫡', '📈', '₹', '🥳', '😇'],
+            options = ['Portfolio', 'Charts', 'Indian Market', 'FinBot', 'P&L to Date', 'Stock Metrics', 'Price Predictor', 'Financial Statement','Widgets'],
+            icons = ['🍎', '💡', '🍊', '🫡', '📈', '₹', '🥳', '😇', '🤩'],
             menu_icon = "cast",
             default_index = 0,
             orientation = "horizontal",
             )
             if selected == "Indian Market":
                 home()
+            if selected == "Stock Metrics":
+                stock_metrics()
             if selected == "Portfolio":
                 st.title('Portfolio Management System')
 
