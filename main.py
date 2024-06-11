@@ -69,7 +69,6 @@ def get_user_id(username):
     return result[0] if result else None
 
 def home():
-    @st.cache_data
     def get_stock_data():
         try:
             st.markdown('### Indian Market Monitor')
