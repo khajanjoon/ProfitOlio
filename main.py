@@ -299,6 +299,10 @@ def home():
     if 'next_run_time' not in st.session_state or time.time() > st.session_state['next_run_time']:
         st.session_state['next_run_time'] = time.time() + 120  # 120 seconds is 2 minutes
         st.rerun()
+        # Button to manually refresh data
+    if st.button('Refresh Data'):
+        st.session_state['next_run_time'] = time.time() - 1  # Force refresh
+        st.rerun()
 ##############################################################################
 
     # def get_stock_data():
