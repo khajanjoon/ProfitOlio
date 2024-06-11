@@ -69,22 +69,43 @@ def get_user_id(username):
     return result[0] if result else None
 
 def home():
+    @st.cache_data
     def get_stock_data():
-        st.markdown('### Indian Market Monitor')
-        nifty = yf.Ticker("^NSEI")
-        sensex = yf.Ticker("^BSESN")
-        nifty_data = nifty.history(period="2d", interval="5m")
-        sensex_data = sensex.history(period="2d", interval="5m")
-        # Get the previous day's close, which is the last entry from the first day
-        previous_nifty_close = nifty_data.iloc[-1]['Close'] if nifty_data.index[-1].date() != datetime.date.today() else nifty_data.iloc[-2]['Close']
-        previous_sensex_close = sensex_data.iloc[-1]['Close'] if sensex_data.index[-1].date() != datetime.date.today() else sensex_data.iloc[-2]['Close']
+        try:
+            st.markdown('### Indian Market Monitor')
+            nifty = yf.Ticker("^NSEI")
+            sensex = yf.Ticker("^BSESN")
 
-        return {
-            "nifty_data": nifty_data[nifty_data.index.date == datetime.date.today()],
-            "sensex_data": sensex_data[sensex_data.index.date == datetime.date.today()],
-            "previous_nifty_close": previous_nifty_close,
-            "previous_sensex_close": previous_sensex_close
-        }    
+            # Fetch data for the last two days
+            nifty_data = nifty.history(period="2d", interval="5m")
+            sensex_data = sensex.history(period="2d", interval="5m")
+
+            # Adjust timezone
+            nifty_data.index = nifty_data.index.tz_convert('Asia/Kolkata') if nifty_data.index.tzinfo else nifty_data.index.tz_localize('UTC').tz_convert('Asia/Kolkata')
+            sensex_data.index = sensex_data.index.tz_convert('Asia/Kolkata') if sensex_data.index.tzinfo else sensex_data.index.tz_localize('UTC').tz_convert('Asia/Kolkata')
+
+            today = pd.to_datetime('now', utc=True).tz_convert('Asia/Kolkata').normalize()
+
+            # Filter data for today or the last available day
+            if nifty_data.index.max().normalize() < today:
+                today_data = nifty_data[nifty_data.index.date == (nifty_data.index.max().date())]
+            else:
+                today_data = nifty_data[nifty_data.index.date == today.date()]
+
+            if sensex_data.index.max().normalize() < today:
+                sensex_today_data = sensex_data[sensex_data.index.date == (sensex_data.index.max().date())]
+            else:
+                sensex_today_data = sensex_data[sensex_data.index.date == today.date()]
+
+            return {
+                "nifty_data": today_data,
+                "sensex_data": sensex_today_data,
+                "previous_nifty_close": today_data['Close'].iloc[-2] if len(today_data) > 1 else None,
+                "previous_sensex_close": sensex_today_data['Close'].iloc[-2] if len(sensex_today_data) > 1 else None
+            }
+        except Exception as e:
+            st.error(f"Failed to fetch stock data: {e}")
+            return None
 
     # Title and Page Config
     #st.set_page_config(page_title="Market Monitor", layout="wide")
@@ -114,7 +135,31 @@ def home():
         return "#2ecc71" if current > previous_close else "#e74c3c"
 
     # Nifty Chart and Data
-    nifty_color = calculate_color(nifty_data['Close'].iloc[-1], nifty_data['Close'].iloc[0])
+    # nifty_color = calculate_color(nifty_data['Close'].iloc[-1], nifty_data['Close'].iloc[0])
+    # if nifty_data.empty:
+    #     st.error("Market closed right now, Nifty data is not available.")
+    #     return
+
+    # try:
+    #     nifty_color = calculate_color(nifty_data['Close'].iloc[-1], nifty_data['Close'].iloc[0])
+    # except IndexError as e:
+    #     st.error("Error accessing Nifty data: Index out of bounds.")
+    #     return
+    if nifty_data.empty:
+        st.error("Market data is not available.")
+        return
+
+    # Use the most recent available data if today's data is not present
+    latest_close = nifty_data['Close'].iloc[-1]
+    latest_open = nifty_data['Open'].iloc[0]
+    if nifty_data.index[-1].date() < pd.Timestamp('today').date():
+        st.warning("Market is closed right now. Showing the latest available data.")
+
+    try:
+        nifty_color = calculate_color(latest_close, latest_open)
+    except IndexError as e:
+        st.error("Error accessing Nifty data: Index out of bounds.")
+        return
     nifty_chart = go.Figure(data=[go.Candlestick(x=nifty_data.index,
                                                 open=nifty_data['Open'],
                                                 high=nifty_data['High'],
@@ -160,7 +205,32 @@ def home():
 
 
     # Sensex Chart and Data
-    sensex_color = calculate_color(sensex_data['Close'].iloc[-1], sensex_data['Close'].iloc[0])
+    #sensex_color = calculate_color(sensex_data['Close'].iloc[-1], sensex_data['Close'].iloc[0])
+    # if sensex_data.empty:
+    #     st.error("Market closed right now, Sensex data is not available.")
+    #     return
+
+    # try:
+    #     sensex_color = calculate_color(sensex_data['Close'].iloc[-1], sensex_data['Close'].iloc[0])
+    # except IndexError as e:
+    #     st.error("Error accessing Sensex data: Index out of bounds.")
+    #     return
+
+    if sensex_data.empty:
+        st.error("Sensex market data is not available.")
+        return
+
+    # Use the most recent available data if today's data is not present
+    latest_close = sensex_data['Close'].iloc[-1]
+    latest_open = sensex_data['Open'].iloc[0]
+    if sensex_data.index[-1].date() < pd.Timestamp('today').date():
+        st.warning("Market is closed right now. Showing the latest available data for Sensex.")
+
+    try:
+        sensex_color = calculate_color(latest_close, latest_open)
+    except IndexError as e:
+        st.error("Error accessing Sensex data: Index out of bounds.")
+        return
     sensex_chart = go.Figure(data=[go.Candlestick(x=sensex_data.index,
                                                 open=sensex_data['Open'],
                                                 high=sensex_data['High'],
@@ -226,7 +296,285 @@ def home():
             "previous_nifty_close": previous_nifty_close,
             "previous_sensex_close": previous_sensex_close
         }
-    
+##############################################################################
+
+    # def get_stock_data():
+    #     try:
+    #         # Fetch data from Yahoo Finance
+    #         nifty = yf.Ticker("^NSEI")
+    #         sensex = yf.Ticker("^BSESN")
+    #         nifty_data = nifty.history(period="2d", interval="5m")
+    #         sensex_data = sensex.history(period="2d", interval="5m")
+
+    #         # Ensure there's enough data to work with
+    #         if len(nifty_data) < 2 or len(sensex_data) < 2:
+    #             raise ValueError("Not enough data fetched for analysis")
+
+    #         # Normalize today's date to ensure comparison on date only
+    #         today = pd.to_datetime('today').normalize()
+
+    #         # Determine the previous close based on whether the latest data includes today
+    #         previous_nifty_close = nifty_data.iloc[-1]['Close'] if nifty_data.index[-1].normalize() < today else nifty_data.iloc[-2]['Close']
+    #         previous_sensex_close = sensex_data.iloc[-1]['Close'] if sensex_data.index[-1].normalize() < today else sensex_data.iloc[-2]['Close']
+
+    #         # Filter data to only include today's data
+    #         nifty_today = nifty_data[nifty_data.index.normalize() == today]
+    #         sensex_today = sensex_data[sensex_data.index.normalize() == today]
+
+    #         return {
+    #             "nifty_data": nifty_today,
+    #             "sensex_data": sensex_today,
+    #             "previous_nifty_close": previous_nifty_close,
+    #             "previous_sensex_close": previous_sensex_close
+    #         }
+    #     except Exception as e:
+    #         print(f"An error occurred: {str(e)}")
+    #         return None  # Return None or an appropriate response
+
+    # # Example of calling the function and handling the response
+    # market_data = get_stock_data()
+    # if market_data is None:
+    #     print("Failed to fetch or process market data")
+    # else:
+    #     print("Market data fetched and processed successfully")
+    # def main():
+    #     #st.set_page_config(page_title="Market Monitor", layout="wide")
+    #     market_data = get_stock_data()
+    #     nifty_data = market_data['nifty_data']
+    #     sensex_data = market_data['sensex_data']
+        
+    #     # Layout with Columns
+    #     col1, col2 = st.columns(2)
+        
+    #     # Display charts and metrics for Nifty and Sensex
+    #     display_market_data(col1, nifty_data, "Nifty 50")
+    #     display_market_data(col2, sensex_data, "Sensex")
+
+    # def display_market_data(column, data, title):
+    #     if data.empty:
+    #         column.error(f"{title} market data is not available.")
+    #         return
+        
+    #     chart = go.Figure(data=[go.Candlestick(x=data.index,
+    #                                         open=data['Open'],
+    #                                         high=data['High'],
+    #                                         low=data['Low'],
+    #                                         close=data['Close'],
+    #                                         increasing_line_color='#2ecc71', decreasing_line_color='#e74c3c')])
+    #     chart.update_layout(title=f'{title} Day Chart', xaxis_title='Time', yaxis_title='Price')
+    #     column.plotly_chart(chart, use_container_width=True)
+
+    # if __name__ == "__main__":
+    #     main()
+    # def get_stock_data():
+    #     st.markdown('### Indian Market Monitor')
+    #     nifty = yf.Ticker("^NSEI")
+    #     sensex = yf.Ticker("^BSESN")
+    #     nifty_data = nifty.history(period="2d", interval="5m")
+    #     sensex_data = sensex.history(period="2d", interval="5m")
+    #     # Get the previous day's close, which is the last entry from the first day
+    #     previous_nifty_close = nifty_data.iloc[-1]['Close'] if nifty_data.index[-1].date() != datetime.date.today() else nifty_data.iloc[-2]['Close']
+    #     previous_sensex_close = sensex_data.iloc[-1]['Close'] if sensex_data.index[-1].date() != datetime.date.today() else sensex_data.iloc[-2]['Close']
+
+    #     return {
+    #         "nifty_data": nifty_data[nifty_data.index.date == datetime.date.today()],
+    #         "sensex_data": sensex_data[sensex_data.index.date == datetime.date.today()],
+    #         "previous_nifty_close": previous_nifty_close,
+    #         "previous_sensex_close": previous_sensex_close
+    #     }    
+
+    # # Title and Page Config
+    # #st.set_page_config(page_title="Market Monitor", layout="wide")
+
+    # # Fetch data
+    # market_data = get_stock_data()
+    # nifty_data = market_data['nifty_data']
+    # sensex_data = market_data['sensex_data']
+
+    # # Custom Colors
+    # #primaryColor = "#3498db"  # Adjust to your preference
+    # primaryColor = "#2ecc71"
+
+    # # Layout with Columns
+    # col1, col2 = st.columns(2)
+
+
+
+    # # Calculate the progress for the progress bars based on current, high, and low values
+    # def calculate_progress(current, high, low):
+    #     if high == low:
+    #         return 0
+    #     return int((current - low) / (high - low) * 100)
+
+    # # Calculate color based on comparison with previous close
+    # def calculate_color(current, previous_close):
+    #     return "#2ecc71" if current > previous_close else "#e74c3c"
+
+    # # Nifty Chart and Data
+    # # nifty_color = calculate_color(nifty_data['Close'].iloc[-1], nifty_data['Close'].iloc[0])
+    # # if nifty_data.empty:
+    # #     st.error("Market closed right now, Nifty data is not available.")
+    # #     return
+
+    # # try:
+    # #     nifty_color = calculate_color(nifty_data['Close'].iloc[-1], nifty_data['Close'].iloc[0])
+    # # except IndexError as e:
+    # #     st.error("Error accessing Nifty data: Index out of bounds.")
+    # #     return
+    # if nifty_data.empty:
+    #     st.error("Market data is not available.")
+    #     return
+
+    # # Use the most recent available data if today's data is not present
+    # latest_close = nifty_data['Close'].iloc[-1]
+    # latest_open = nifty_data['Open'].iloc[0]
+    # if nifty_data.index[-1].date() < pd.Timestamp('today').date():
+    #     st.warning("Market is closed right now. Showing the latest available data.")
+
+    # try:
+    #     nifty_color = calculate_color(latest_close, latest_open)
+    # except IndexError as e:
+    #     st.error("Error accessing Nifty data: Index out of bounds.")
+    #     return
+    # nifty_chart = go.Figure(data=[go.Candlestick(x=nifty_data.index,
+    #                                             open=nifty_data['Open'],
+    #                                             high=nifty_data['High'],
+    #                                             low=nifty_data['Low'],
+    #                                             close=nifty_data['Close'],
+    #                                             increasing_line_color='#2ecc71', decreasing_line_color='#e74c3c')])
+    # nifty_chart.update_layout(title='Nifty 50 Day Chart', xaxis_title='Time', yaxis_title='Price')
+    # with col1:
+    #     st.plotly_chart(nifty_chart, use_container_width=True)
+    #     metric_col1, metric_col2 = st.columns(2)
+    #     with metric_col1:
+    #         st.metric(
+    #         label="Current",
+    #         value="{:.2f}".format(nifty_data['Close'].iloc[-1]),
+    #         delta="{:.2f}  points from day's open".format(nifty_data['Close'].iloc[-1] - nifty_data['Open'].iloc[0])
+    #     )  
+    #         st.metric(
+    #         label="Day's High",
+    #         value="{:.2f}".format(nifty_data['High'].max()),
+    #         delta=None
+    #     )
+    #     with metric_col2:   
+
+    #         st.metric(
+    #         label="Open",
+    #         value="{:.2f}".format(nifty_data['Open'].iloc[0]),
+    #         delta=None
+    #     )
+    #         st.markdown("""
+    # <style>
+    # .stMetric {
+    #     margin-bottom: 0px;  /* Adjust the margin to reduce space */
+    # }
+    # </style>
+    # """, unsafe_allow_html=True)
+    #         st.metric(
+    #         label="Day's Low",
+    #         value="{:.2f}".format(nifty_data['Low'].min()),
+    #         delta=None
+    #     )
+    #     nifty_progress = calculate_progress(nifty_data['Close'].iloc[-1], nifty_data['High'].max(), nifty_data['Low'].min())
+    #     st.progress(nifty_progress)
+
+
+    # # Sensex Chart and Data
+    # #sensex_color = calculate_color(sensex_data['Close'].iloc[-1], sensex_data['Close'].iloc[0])
+    # # if sensex_data.empty:
+    # #     st.error("Market closed right now, Sensex data is not available.")
+    # #     return
+
+    # # try:
+    # #     sensex_color = calculate_color(sensex_data['Close'].iloc[-1], sensex_data['Close'].iloc[0])
+    # # except IndexError as e:
+    # #     st.error("Error accessing Sensex data: Index out of bounds.")
+    # #     return
+
+    # if sensex_data.empty:
+    #     st.error("Sensex market data is not available.")
+    #     return
+
+    # # Use the most recent available data if today's data is not present
+    # latest_close = sensex_data['Close'].iloc[-1]
+    # latest_open = sensex_data['Open'].iloc[0]
+    # if sensex_data.index[-1].date() < pd.Timestamp('today').date():
+    #     st.warning("Market is closed right now. Showing the latest available data for Sensex.")
+
+    # try:
+    #     sensex_color = calculate_color(latest_close, latest_open)
+    # except IndexError as e:
+    #     st.error("Error accessing Sensex data: Index out of bounds.")
+    #     return
+    # sensex_chart = go.Figure(data=[go.Candlestick(x=sensex_data.index,
+    #                                             open=sensex_data['Open'],
+    #                                             high=sensex_data['High'],
+    #                                             low=sensex_data['Low'],
+    #                                             close=sensex_data['Close'],
+    #                                             increasing_line_color='#2ecc71', decreasing_line_color='#e74c3c')])
+    # sensex_chart.update_layout(title='Sensex Day Chart', xaxis_title='Time', yaxis_title='Price')
+    # with col2:
+    #     st.plotly_chart(sensex_chart, use_container_width=True)
+    #     metric_col1, metric_col2 = st.columns(2)
+    #     with metric_col1:
+    #         st.metric(
+    #         label="Current",
+    #         value="{:.2f}".format(sensex_data['Close'].iloc[-1]),
+    #         delta="{:.2f} points from day's open".format(sensex_data['Close'].iloc[-1] - sensex_data['Open'].iloc[0])
+    #     )
+    #         st.metric(
+    #             label="Day's High",
+    #             value="{:.2f}".format(sensex_data['High'].max()),
+    #             delta=None
+    #     )
+    #     with metric_col2:
+    #         st.metric(
+    #         label="Open",
+    #         value="{:.2f}".format(sensex_data['Open'].iloc[0]),
+    #         delta=None
+    # )
+    #         st.markdown("""
+    # <style>
+    # .stMetric {
+    # margin-bottom: 0px;  /* Adjust the margin to reduce space */
+    # }
+    # </style>
+    # """, unsafe_allow_html=True)
+    #         st.metric(
+    #             label="Day's Low",
+    #             value="{:.2f}".format(sensex_data['Low'].min()),
+    #             delta=None
+    #     )
+    #     sensex_progress = calculate_progress(sensex_data['Close'].iloc[-1], sensex_data['High'].max(), sensex_data['Low'].min())
+    #     st.progress(sensex_progress)
+
+    # # Automatic data refresh setup
+    # if 'next_run_time' not in st.session_state or time.time() > st.session_state['next_run_time']:
+    #     st.session_state['next_run_time'] = time.time() + 120  # 120 seconds is 2 minutes
+    #     st.rerun()
+
+    # # Function to get live stock data and previous day's close
+    # def get_stock_data():
+    #     nifty = yf.Ticker("^NSEI")
+    #     sensex = yf.Ticker("^BSESN")
+    #     # Fetch data for the last two days
+    #     nifty_data = nifty.history(period="2d", interval="5m")
+    #     sensex_data = sensex.history(period="2d", interval="5m")
+        
+    #     # Get the previous day's close, which is the last entry from the first day
+    #     previous_nifty_close = nifty_data.iloc[-1]['Close'] if nifty_data.index[-1].date() != datetime.date.today() else nifty_data.iloc[-2]['Close']
+    #     previous_sensex_close = sensex_data.iloc[-1]['Close'] if sensex_data.index[-1].date() != datetime.date.today() else sensex_data.iloc[-2]['Close']
+
+    #     return {
+    #         "nifty_data": nifty_data[nifty_data.index.date == datetime.date.today()],
+    #         "sensex_data": sensex_data[sensex_data.index.date == datetime.date.today()],
+    #         "previous_nifty_close": previous_nifty_close,
+    #         "previous_sensex_close": previous_sensex_close
+    #     }
+
+###############################################################################
+
 def stock_metrics():
     def calculate_beta(asset_returns, market_returns):
         covariance_matrix = np.cov(asset_returns, market_returns)
