@@ -296,6 +296,10 @@ def home():
             "previous_nifty_close": previous_nifty_close,
             "previous_sensex_close": previous_sensex_close
         }
+    
+    if 'next_run_time' not in st.session_state or time.time() > st.session_state['next_run_time']:
+        st.session_state['next_run_time'] = time.time() + 120  # 120 seconds is 2 minutes
+        st.rerun()
 ##############################################################################
 
     # def get_stock_data():
