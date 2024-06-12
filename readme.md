@@ -1,6 +1,7 @@
 **ProfitOlio - Portfolio Management System**
 
-This project is a multifunctional finance application built using Streamlit, offering a portfolio management system, a financial chatbot (FinBot), a future price predictor, with various visualizations to aid the user and a financial statement viewer.
+ProfitOlio is a comprehensive finance application built using Streamlit, designed to offer robust tools for portfolio management. It features a sophisticated financial chatbot (FinBot), future price prediction capabilities, and various visualizations to assist users in managing their investments effectively. It also includes a viewer for detailed financial statements.
+
 
 **Major Contributors:**
 
@@ -14,34 +15,53 @@ This project is a multifunctional finance application built using Streamlit, off
 
 1. Portfolio Management System
 2. Charts
-3. FinBot
-4. P&L to Date
-5. Price Predictor
-6. Financial Statement Viewer
-7. Widgets
+3. Indian Market Overview
+4. FinBot
+5. P&L to Date
+6. Stock Metrics
+7. Price Predictor
+8. Financial Statement Viewer
+9. Widgets
 8. Installation and Usage
 9. Demo
 
 **Portfolio Management System**
 
-	This module allows users to manage their stock portfolio, track investments, calculate profits/losses, and visualize portfolio distribution.
+	This module enables users to manage their stock portfolio comprehensively. Users can track investments, calculate profits or losses, and visualize how their investments are distributed.
 
 **Features**
 
-- Add stocks, including US stocks and cryptocurrencies, to the portfolio.
-- View current value, amount invested, and profit/loss.
-- Sell stocks partially or completely.
-- Convert USD investments to INR.
-- Visualize portfolio distribution with pie charts.
+- Add stocks to the portfolio, including US stocks and cryptocurrencies.
+
+- Monitor the current value, total amount invested, and profit or loss on investments.
+
+- Sell stocks either partially or completely.
+
+- Convert investments from USD to INR for accurate tracking.
+
+- Employ pie charts for a 
+visual breakdown of portfolio distribution.
+
+**Features**
+
 
 **Charts**
 
-	This feature creates charts based on the stocks added to the portfolio, displaying price trends as well as gross profit.
+	Offer detailed visual representations of stock trends and profitability within the user’s portfolio.
 
 **Features**
 
-- Visualize historical stock prices for the last 30 days, 3 months, 1 year, or 5 years.
-- Visualize annual (YoY) or quarterly (QoQ) gross profit of the stocks/companies.
+- Track and visualize historical stock prices over various periods (30 days, 3 months, 1 year, or 5 years).
+- Display annual (Year-over-Year) or quarterly (Quarter-over-Quarter) gross profit of the stocks.
+
+**Indian Market Overview**
+
+	This module provides a daily overview of major Indian stock indices, including Nifty50 and Sensex. It Forms a 5-min live candlestick chart for the Indian indices, displaying the day's high, low, open, and current levels.
+
+**Features**
+
+- Give a daily overview of major Indian Stock Indices; Nifty50 and Sensex. 
+- Forms a 5-min live candlestick for the Indian Indices and show their Day's High, Low and Open as well as current levels.
 
 **FinBot**
 
@@ -59,6 +79,14 @@ This project is a multifunctional finance application built using Streamlit, off
 **Features**
 
 - Check the profit or loss of a company for any amount invested up to the last 10 years.
+
+**Stock Metrics**
+
+	Give certain important metrics like Beta, CAGR Var of stocks.
+
+**Features**
+
+- Calculates different stock metrics like Beta, CAGR, VaR etc and then show charts as well as provide information on them.
 
 **Price Predictor**
 
