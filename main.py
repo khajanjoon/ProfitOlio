@@ -303,284 +303,7 @@ def home():
     if st.button('Refresh Data'):
         st.session_state['next_run_time'] = time.time() - 1  # Force refresh
         st.rerun()
-##############################################################################
 
-    # def get_stock_data():
-    #     try:
-    #         # Fetch data from Yahoo Finance
-    #         nifty = yf.Ticker("^NSEI")
-    #         sensex = yf.Ticker("^BSESN")
-    #         nifty_data = nifty.history(period="2d", interval="5m")
-    #         sensex_data = sensex.history(period="2d", interval="5m")
-
-    #         # Ensure there's enough data to work with
-    #         if len(nifty_data) < 2 or len(sensex_data) < 2:
-    #             raise ValueError("Not enough data fetched for analysis")
-
-    #         # Normalize today's date to ensure comparison on date only
-    #         today = pd.to_datetime('today').normalize()
-
-    #         # Determine the previous close based on whether the latest data includes today
-    #         previous_nifty_close = nifty_data.iloc[-1]['Close'] if nifty_data.index[-1].normalize() < today else nifty_data.iloc[-2]['Close']
-    #         previous_sensex_close = sensex_data.iloc[-1]['Close'] if sensex_data.index[-1].normalize() < today else sensex_data.iloc[-2]['Close']
-
-    #         # Filter data to only include today's data
-    #         nifty_today = nifty_data[nifty_data.index.normalize() == today]
-    #         sensex_today = sensex_data[sensex_data.index.normalize() == today]
-
-    #         return {
-    #             "nifty_data": nifty_today,
-    #             "sensex_data": sensex_today,
-    #             "previous_nifty_close": previous_nifty_close,
-    #             "previous_sensex_close": previous_sensex_close
-    #         }
-    #     except Exception as e:
-    #         print(f"An error occurred: {str(e)}")
-    #         return None  # Return None or an appropriate response
-
-    # # Example of calling the function and handling the response
-    # market_data = get_stock_data()
-    # if market_data is None:
-    #     print("Failed to fetch or process market data")
-    # else:
-    #     print("Market data fetched and processed successfully")
-    # def main():
-    #     #st.set_page_config(page_title="Market Monitor", layout="wide")
-    #     market_data = get_stock_data()
-    #     nifty_data = market_data['nifty_data']
-    #     sensex_data = market_data['sensex_data']
-        
-    #     # Layout with Columns
-    #     col1, col2 = st.columns(2)
-        
-    #     # Display charts and metrics for Nifty and Sensex
-    #     display_market_data(col1, nifty_data, "Nifty 50")
-    #     display_market_data(col2, sensex_data, "Sensex")
-
-    # def display_market_data(column, data, title):
-    #     if data.empty:
-    #         column.error(f"{title} market data is not available.")
-    #         return
-        
-    #     chart = go.Figure(data=[go.Candlestick(x=data.index,
-    #                                         open=data['Open'],
-    #                                         high=data['High'],
-    #                                         low=data['Low'],
-    #                                         close=data['Close'],
-    #                                         increasing_line_color='#2ecc71', decreasing_line_color='#e74c3c')])
-    #     chart.update_layout(title=f'{title} Day Chart', xaxis_title='Time', yaxis_title='Price')
-    #     column.plotly_chart(chart, use_container_width=True)
-
-    # if __name__ == "__main__":
-    #     main()
-    # def get_stock_data():
-    #     st.markdown('### Indian Market Monitor')
-    #     nifty = yf.Ticker("^NSEI")
-    #     sensex = yf.Ticker("^BSESN")
-    #     nifty_data = nifty.history(period="2d", interval="5m")
-    #     sensex_data = sensex.history(period="2d", interval="5m")
-    #     # Get the previous day's close, which is the last entry from the first day
-    #     previous_nifty_close = nifty_data.iloc[-1]['Close'] if nifty_data.index[-1].date() != datetime.date.today() else nifty_data.iloc[-2]['Close']
-    #     previous_sensex_close = sensex_data.iloc[-1]['Close'] if sensex_data.index[-1].date() != datetime.date.today() else sensex_data.iloc[-2]['Close']
-
-    #     return {
-    #         "nifty_data": nifty_data[nifty_data.index.date == datetime.date.today()],
-    #         "sensex_data": sensex_data[sensex_data.index.date == datetime.date.today()],
-    #         "previous_nifty_close": previous_nifty_close,
-    #         "previous_sensex_close": previous_sensex_close
-    #     }    
-
-    # # Title and Page Config
-    # #st.set_page_config(page_title="Market Monitor", layout="wide")
-
-    # # Fetch data
-    # market_data = get_stock_data()
-    # nifty_data = market_data['nifty_data']
-    # sensex_data = market_data['sensex_data']
-
-    # # Custom Colors
-    # #primaryColor = "#3498db"  # Adjust to your preference
-    # primaryColor = "#2ecc71"
-
-    # # Layout with Columns
-    # col1, col2 = st.columns(2)
-
-
-
-    # # Calculate the progress for the progress bars based on current, high, and low values
-    # def calculate_progress(current, high, low):
-    #     if high == low:
-    #         return 0
-    #     return int((current - low) / (high - low) * 100)
-
-    # # Calculate color based on comparison with previous close
-    # def calculate_color(current, previous_close):
-    #     return "#2ecc71" if current > previous_close else "#e74c3c"
-
-    # # Nifty Chart and Data
-    # # nifty_color = calculate_color(nifty_data['Close'].iloc[-1], nifty_data['Close'].iloc[0])
-    # # if nifty_data.empty:
-    # #     st.error("Market closed right now, Nifty data is not available.")
-    # #     return
-
-    # # try:
-    # #     nifty_color = calculate_color(nifty_data['Close'].iloc[-1], nifty_data['Close'].iloc[0])
-    # # except IndexError as e:
-    # #     st.error("Error accessing Nifty data: Index out of bounds.")
-    # #     return
-    # if nifty_data.empty:
-    #     st.error("Market data is not available.")
-    #     return
-
-    # # Use the most recent available data if today's data is not present
-    # latest_close = nifty_data['Close'].iloc[-1]
-    # latest_open = nifty_data['Open'].iloc[0]
-    # if nifty_data.index[-1].date() < pd.Timestamp('today').date():
-    #     st.warning("Market is closed right now. Showing the latest available data.")
-
-    # try:
-    #     nifty_color = calculate_color(latest_close, latest_open)
-    # except IndexError as e:
-    #     st.error("Error accessing Nifty data: Index out of bounds.")
-    #     return
-    # nifty_chart = go.Figure(data=[go.Candlestick(x=nifty_data.index,
-    #                                             open=nifty_data['Open'],
-    #                                             high=nifty_data['High'],
-    #                                             low=nifty_data['Low'],
-    #                                             close=nifty_data['Close'],
-    #                                             increasing_line_color='#2ecc71', decreasing_line_color='#e74c3c')])
-    # nifty_chart.update_layout(title='Nifty 50 Day Chart', xaxis_title='Time', yaxis_title='Price')
-    # with col1:
-    #     st.plotly_chart(nifty_chart, use_container_width=True)
-    #     metric_col1, metric_col2 = st.columns(2)
-    #     with metric_col1:
-    #         st.metric(
-    #         label="Current",
-    #         value="{:.2f}".format(nifty_data['Close'].iloc[-1]),
-    #         delta="{:.2f}  points from day's open".format(nifty_data['Close'].iloc[-1] - nifty_data['Open'].iloc[0])
-    #     )  
-    #         st.metric(
-    #         label="Day's High",
-    #         value="{:.2f}".format(nifty_data['High'].max()),
-    #         delta=None
-    #     )
-    #     with metric_col2:   
-
-    #         st.metric(
-    #         label="Open",
-    #         value="{:.2f}".format(nifty_data['Open'].iloc[0]),
-    #         delta=None
-    #     )
-    #         st.markdown("""
-    # <style>
-    # .stMetric {
-    #     margin-bottom: 0px;  /* Adjust the margin to reduce space */
-    # }
-    # </style>
-    # """, unsafe_allow_html=True)
-    #         st.metric(
-    #         label="Day's Low",
-    #         value="{:.2f}".format(nifty_data['Low'].min()),
-    #         delta=None
-    #     )
-    #     nifty_progress = calculate_progress(nifty_data['Close'].iloc[-1], nifty_data['High'].max(), nifty_data['Low'].min())
-    #     st.progress(nifty_progress)
-
-
-    # # Sensex Chart and Data
-    # #sensex_color = calculate_color(sensex_data['Close'].iloc[-1], sensex_data['Close'].iloc[0])
-    # # if sensex_data.empty:
-    # #     st.error("Market closed right now, Sensex data is not available.")
-    # #     return
-
-    # # try:
-    # #     sensex_color = calculate_color(sensex_data['Close'].iloc[-1], sensex_data['Close'].iloc[0])
-    # # except IndexError as e:
-    # #     st.error("Error accessing Sensex data: Index out of bounds.")
-    # #     return
-
-    # if sensex_data.empty:
-    #     st.error("Sensex market data is not available.")
-    #     return
-
-    # # Use the most recent available data if today's data is not present
-    # latest_close = sensex_data['Close'].iloc[-1]
-    # latest_open = sensex_data['Open'].iloc[0]
-    # if sensex_data.index[-1].date() < pd.Timestamp('today').date():
-    #     st.warning("Market is closed right now. Showing the latest available data for Sensex.")
-
-    # try:
-    #     sensex_color = calculate_color(latest_close, latest_open)
-    # except IndexError as e:
-    #     st.error("Error accessing Sensex data: Index out of bounds.")
-    #     return
-    # sensex_chart = go.Figure(data=[go.Candlestick(x=sensex_data.index,
-    #                                             open=sensex_data['Open'],
-    #                                             high=sensex_data['High'],
-    #                                             low=sensex_data['Low'],
-    #                                             close=sensex_data['Close'],
-    #                                             increasing_line_color='#2ecc71', decreasing_line_color='#e74c3c')])
-    # sensex_chart.update_layout(title='Sensex Day Chart', xaxis_title='Time', yaxis_title='Price')
-    # with col2:
-    #     st.plotly_chart(sensex_chart, use_container_width=True)
-    #     metric_col1, metric_col2 = st.columns(2)
-    #     with metric_col1:
-    #         st.metric(
-    #         label="Current",
-    #         value="{:.2f}".format(sensex_data['Close'].iloc[-1]),
-    #         delta="{:.2f} points from day's open".format(sensex_data['Close'].iloc[-1] - sensex_data['Open'].iloc[0])
-    #     )
-    #         st.metric(
-    #             label="Day's High",
-    #             value="{:.2f}".format(sensex_data['High'].max()),
-    #             delta=None
-    #     )
-    #     with metric_col2:
-    #         st.metric(
-    #         label="Open",
-    #         value="{:.2f}".format(sensex_data['Open'].iloc[0]),
-    #         delta=None
-    # )
-    #         st.markdown("""
-    # <style>
-    # .stMetric {
-    # margin-bottom: 0px;  /* Adjust the margin to reduce space */
-    # }
-    # </style>
-    # """, unsafe_allow_html=True)
-    #         st.metric(
-    #             label="Day's Low",
-    #             value="{:.2f}".format(sensex_data['Low'].min()),
-    #             delta=None
-    #     )
-    #     sensex_progress = calculate_progress(sensex_data['Close'].iloc[-1], sensex_data['High'].max(), sensex_data['Low'].min())
-    #     st.progress(sensex_progress)
-
-    # # Automatic data refresh setup
-    # if 'next_run_time' not in st.session_state or time.time() > st.session_state['next_run_time']:
-    #     st.session_state['next_run_time'] = time.time() + 120  # 120 seconds is 2 minutes
-    #     st.rerun()
-
-    # # Function to get live stock data and previous day's close
-    # def get_stock_data():
-    #     nifty = yf.Ticker("^NSEI")
-    #     sensex = yf.Ticker("^BSESN")
-    #     # Fetch data for the last two days
-    #     nifty_data = nifty.history(period="2d", interval="5m")
-    #     sensex_data = sensex.history(period="2d", interval="5m")
-        
-    #     # Get the previous day's close, which is the last entry from the first day
-    #     previous_nifty_close = nifty_data.iloc[-1]['Close'] if nifty_data.index[-1].date() != datetime.date.today() else nifty_data.iloc[-2]['Close']
-    #     previous_sensex_close = sensex_data.iloc[-1]['Close'] if sensex_data.index[-1].date() != datetime.date.today() else sensex_data.iloc[-2]['Close']
-
-    #     return {
-    #         "nifty_data": nifty_data[nifty_data.index.date == datetime.date.today()],
-    #         "sensex_data": sensex_data[sensex_data.index.date == datetime.date.today()],
-    #         "previous_nifty_close": previous_nifty_close,
-    #         "previous_sensex_close": previous_sensex_close
-    #     }
-
-###############################################################################
 
 def stock_metrics():
     def calculate_beta(asset_returns, market_returns):
@@ -780,127 +503,155 @@ elif choice == "About":
     """
     **ProfitOlio - Portfolio Management System**
 
-    This project is a multifunctional finance application built using Streamlit, offering a portfolio management system, a financial chatbot (FinBot), a future price predictor, with various visualizations to aid the user and a financial statement viewer.
+ProfitOlio is a comprehensive finance application built using Streamlit, designed to offer robust tools for portfolio management. It features a financial chatbot (FinBot), future price prediction capabilities, and various visualizations to assist users in managing their investments effectively. It also includes a viewer for detailed financial statements.
 
-    **Major Contributors:**
 
-    - Harsh Sinha
-    - Sahil Advani
-    - Aditya Anshu
-    - Sandip Bala
-    - Deepak Ashok Modi
+**Major Contributors:**
 
-    **Table of Contents**
+- Harsh Sinha
+- Sahil Advani
+- Aditya Anshu
+- Sandip Bala
+- Deepak Ashok Modi
 
-    1. Portfolio Management System
-    2. Charts
-    3. FinBot
-    4. P&L to Date
-    5. Price Predictor
-    6. Financial Statement Viewer
-    7. Widgets
-    8. Installation and Usage
-    9. Demo
+**Table of Contents**
 
-    **Portfolio Management System**
+1. Portfolio Management System
+2. Charts
+3. Indian Market Overview
+4. FinBot
+5. P&L to Date
+6. Stock Metrics
+7. Price Predictor
+8. Financial Statement Viewer
+9. Widgets
+8. Installation and Usage
+9. Demo
 
-        This module allows users to manage their stock portfolio, track investments, calculate profits/losses, and visualize portfolio distribution.
+**Portfolio Management System**
 
-    **Features**
+	This module enables users to manage their stock portfolio comprehensively. Users can track investments, calculate profits or losses, and visualize how their investments are distributed.
 
-    - Add stocks, including US stocks and cryptocurrencies, to the portfolio.
-    - View current value, amount invested, and profit/loss.
-    - Sell stocks partially or completely.
-    - Convert USD investments to INR.
-    - Visualize portfolio distribution with pie charts.
+**Features**
 
-    **Charts**
+- Add stocks to the portfolio, including US stocks and cryptocurrencies.
 
-        This feature creates charts based on the stocks added to the portfolio, displaying price trends as well as gross profit.
+- Monitor the current value, total amount invested, and profit or loss on investments.
 
-    **Features**
+- Sell stocks either partially or completely.
 
-    - Visualize historical stock prices for the last 30 days, 3 months, 1 year, or 5 years.
-    - Visualize annual (YoY) or quarterly (QoQ) gross profit of the stocks/companies.
+- Convert investments from USD to INR for accurate tracking.
 
-    **FinBot**
+- Employ pie charts for a 
+visual breakdown of portfolio distribution.
 
-        FinBot is a finance chatbot powered by OpenAI GPT, providing insights into stock market analysis, company financials, and personalized investment strategies.
+**Features**
 
-    **Features**
 
-    - Interact with the bot to get analyses of stock market trends.
-    - Obtain detailed technical and fundamental analysis.
+**Charts**
 
-    **P&L to Date**
+	Offer detailed visual representations of stock trends and profitability within the user’s portfolio.
 
-        Utilizes Yahoo Finance and Plotly to visualize the profit/loss of a company based on the amount invested over the last 10 years.
+**Features**
 
-    **Features**
+- Track and visualize historical stock prices over various periods (30 days, 3 months, 1 year, or 5 years).
+- Display annual (Year-over-Year) or quarterly (Quarter-over-Quarter) gross profit of the stocks.
 
-    - Check the profit or loss of a company for any amount invested up to the last 10 years.
+**Indian Market Overview**
 
-    **Price Predictor**
+	This module provides a daily overview of major Indian stock indices, including Nifty50 and Sensex. It Forms a 5-min live candlestick chart for the Indian indices, displaying the day's high, low, open, and current levels.
 
-        The Price Predictor uses Prophet to forecast future stock prices based on historical data.
+**Features**
 
-    **Features**
+- Give a daily overview of major Indian Stock Indices; Nifty50 and Sensex. 
+- Forms a 5-min live candlestick for the Indian Indices and show their Day's High, Low and Open as well as current levels.
 
-    - Predict stock prices for up to 5 years.
-    - Visualize historical and forecasted stock prices.
-    - Customize the date input for the current day.
-    - Select from multiple stock options.
+**FinBot**
 
-    **Financial Statement Viewer**
+	FinBot is a finance chatbot powered by OpenAI GPT, providing insights into stock market analysis, company financials, and personalized investment strategies.
 
-        This viewer provides annual or quarterly financial statements of stocks in a user-friendly format.
+**Features**
 
-    **Features**
+- Interact with the bot to get analyses of stock market trends.
+- Obtain detailed technical and fundamental analysis.
 
-    - View and download balance sheets, income statements, and cash flow statements.
-    - Obtain detailed graphs for gross profit QoQ and YoY, as well as a chart showing all financial metrics with an option to choose one.
-    - Data in crores of Indian Rupees (INR) or US Dollars (USD).
-    - Supports both Indian and US stock symbols.
+**P&L to Date**
 
-    **Widgets**
+	Utilizes Yahoo Finance and Plotly to visualize the profit/loss of a company based on the amount invested over the last 10 years.
 
-        Provides widgets for Indian Stocks, including:
+**Features**
 
-        - Technicals
-        - Checklist
-        - QVT Score
-        - SWOT Analysis
+- Check the profit or loss of a company for any amount invested up to the last 10 years.
 
-    **Features**
+**Stock Metrics**
 
-    - Generate widgets of Indian stocks based on input, assisted by Trendlyne.
+	Give certain important metrics like Beta, CAGR Var of stocks.
 
-    **Installation and Usage**
+**Features**
 
-    1. Clone the repository:
+- Calculates different stock metrics like Beta, CAGR, VaR etc and then show charts as well as provide information on them.
 
-        ```bash
-        git clone https://github.com/harshsinha-12/ProfitOlio.git
-        cd ProfitOlio
-        ```
+**Price Predictor**
 
-    2. Install the required dependencies:
+	The Price Predictor uses Prophet to forecast future stock prices based on historical data.
 
-        ```bash
-        pip install -r requirements.txt
-        ```
+**Features**
 
-    3. Run the application:
+- Predict stock prices for up to 5 years.
+- Visualize historical and forecasted stock prices.
+- Customize the date input for the current day.
+- Select from multiple stock options.
 
-        ```bash
-        streamlit run main.py
-        ```
+**Financial Statement Viewer**
 
-    **Demo**
+	This viewer provides annual or quarterly financial statements of stocks in a user-friendly format.
 
-    - View the live app: [ProfitOlio](https://profitolio.streamlit.app/)
-    - Watch the YouTube Demo: [YouTube](https://youtu.be/5G_8I19g_-Q)
-    """
+**Features**
+
+- View and download balance sheets, income statements, and cash flow statements.
+- Obtain detailed graphs for gross profit QoQ and YoY, as well as a chart showing all financial metrics with an option to choose one.
+- Data in crores of Indian Rupees (INR) or US Dollars (USD).
+- Supports both Indian and US stock symbols.
+
+**Widgets**
+
+	Provides widgets for Indian Stocks, including:
+
+	- Technicals
+	- Checklist
+	- QVT Score
+	- SWOT Analysis
+
+**Features**
+
+- Generate widgets of Indian stocks based on input, assisted by Trendlyne.
+
+**Installation and Usage**
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/harshsinha-12/ProfitOlio.git
+    cd ProfitOlio
+    ```
+
+2. Install the required dependencies:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. Run the application:
+
+    ```bash
+    streamlit run main.py
+    ```
+
+**Demo**
+
+- View the live app: [ProfitOlio](https://profitolio.streamlit.app/)
+- Watch the YouTube Demo: [YouTube](https://youtu.be/5G_8I19g_-Q)
+"""
 
 # Initializing the session state and page layout
 if 'user_id' in st.session_state:
