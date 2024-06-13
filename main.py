@@ -1248,6 +1248,7 @@ if 'user_id' in st.session_state:
 
                 def main():
                     st.title('Finance Chatbot with OpenAI GPT')
+                    st.text("Ask me only about stocks, market trends, etc. and fundamentals of companies, i can't answer current price or predict future price of stocks.")
                     user_input = st.text_input("Enter your question:", placeholder="Ask me about stocks, market trends, etc.")
                     if st.button('Submit'):
                         with st.spinner('Generating response...'):
@@ -1347,7 +1348,40 @@ if 'user_id' in st.session_state:
                             period_label = 'Quarterly'
                         
                         return financials, period_label
+                    def plot_stock_price(ticker_symbol, period='1mo', interval='1d'):
+                        stock_info = yf.Ticker(ticker_symbol)
+                        try:
+                            stock_history = stock_info.history(period=period, interval=interval)
+                            fig = go.Figure()
+                            fig.add_trace(go.Scatter(x=stock_history.index, y=stock_history['Close'], mode='lines', name=ticker_symbol))
+                            fig.update_layout(title=f'Stock Price Overview of {ticker_symbol}',
+                                            xaxis_title='Date',
+                                            yaxis_title='Stock Price')
+                            st.plotly_chart(fig)
+                        except Exception as e:
+                            st.error(f"Failed to fetch current price for {ticker_symbol}. Error: {e}")
 
+                    st.markdown("### Stock Price Overview for charting price of stock")
+                    period = st.radio('Select Period', ['1mo', '3mo', '1y', '5y'], index=0, key='Stock Price Plot')
+                    interval_mapping = {'1mo': '1d', '3mo': '1wk', '1y': '1wk', '5y': '1mo'}
+
+
+                    st.markdown(
+                        """
+                        <style>
+                        .stRadio > div[role="radiogroup"] {
+                            display: flex;
+                            flex-direction: row;
+                            flex-wrap: wrap;
+                        }
+                        .stRadio > div[role="radiogroup"] > label {
+                            flex: 1;
+                            margin-right: 10px;
+                        }
+                        </style>
+                        """,
+                        unsafe_allow_html=True
+                    )
                     # Function to plot financials using Plotly
                     def plot_financials(financials, period_label, ticker_symbol):
                         # Convert to DataFrame and clean data
@@ -1398,6 +1432,7 @@ if 'user_id' in st.session_state:
 
                         # Display financials
                         if st.button('Fetch Financials'):
+                            plot_stock_price(ticker_symbol, period, interval_mapping[period])
                             financials, period_label = fetch_financials(ticker_symbol, data_frequency)
                             gross_profit = fetch_gross_profit(ticker_symbol, period=data_frequency)
                             if gross_profit is not None and not gross_profit.empty:
