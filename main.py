@@ -1361,7 +1361,7 @@ if 'user_id' in st.session_state:
                         except Exception as e:
                             st.error(f"Failed to fetch current price for {ticker_symbol}. Error: {e}")
 
-                    st.markdown("### Stock Price Overview for charting price of stock")
+                    st.markdown("### Stock Price Overview")
                     period = st.radio('Select Period', ['1mo', '3mo', '1y', '5y'], index=0, key='Stock Price Plot')
                     interval_mapping = {'1mo': '1d', '3mo': '1wk', '1y': '1wk', '5y': '1mo'}
 
