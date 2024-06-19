@@ -363,7 +363,7 @@ def home():
     if st.button('Refresh Data'):
         st.session_state['next_run_time'] = time.time() - 1  # Force refresh
         st.rerun()
-
+    add_footer()
 
 def stock_metrics():
     def calculate_beta(asset_returns, market_returns):
@@ -712,6 +712,7 @@ visual breakdown of portfolio distribution.
 - View the live app: [ProfitOlio](https://profitolio.streamlit.app/)
 - Watch the YouTube Demo: [YouTube](https://youtu.be/5G_8I19g_-Q)
 """
+    add_footer()
 
 # Initializing the session state and page layout
 if 'user_id' in st.session_state:
@@ -1530,5 +1531,3 @@ if 'user_id' in st.session_state:
                 if __name__ == "__main__":
                         main()
 conn.close()            
-
-add_footer()
