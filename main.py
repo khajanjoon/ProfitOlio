@@ -17,6 +17,66 @@ import datetime
 import time
 import numpy as np
 import plotly.express as px
+from PIL import Image
+import requests
+import base64
+
+def add_footer():
+    # Load LinkedIn icon
+    linkedin_icon_url = "https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png"
+    response = requests.get(linkedin_icon_url)
+    linkedin_icon = Image.open(requests.get(linkedin_icon_url, stream=True).raw)
+    linkedin_icon.save("linkedin_icon.png")
+    linkedin_icon_base64 = base64.b64encode(open("linkedin_icon.png", "rb").read()).decode()
+
+    # HTML and CSS for the footer
+    footer = f"""
+    <style>
+        .footer {{
+            background-color: white;
+            padding: 30px 0;
+            position: relative;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            color: black;
+            text-align: center;
+            font-weight: semi-bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }}
+        .designer {{
+            margin: 0 50px;  /* Adjust margin to ensure proper spacing */
+            display: flex;
+            align-items: center;  /* Align items vertically */
+        }}
+        .designer a {{
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;  /* Align text and icon vertically */
+        }}
+        .designer img {{
+            margin-left: 5px;
+            width: 20px;  /* Set a fixed width for consistency */
+            height: 20px;
+        }}
+        /* Hover effect for links */
+        .designer a:hover {{
+            text-decoration: underline;
+        }}
+    </style>
+    <div class="footer">
+        <div class="designer">Deepak Modi<a href="https://www.linkedin.com/in/deepak-ashok-modi-5600412bb/?trk=people-guest_people_search-card&originalSubdomain=in"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
+        <div class="designer">Harsh Sinha<a href="https://www.linkedin.com/in/harshsinha12"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
+        <div class="designer">Aditya Anshu<a href="https://www.linkedin.com/in/johndoe"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
+        <div class="designer">Sahil Advani<a href="https://www.linkedin.com/in/janesmith"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
+        <div class="designer">Sandip Bala<a href="https://www.linkedin.com/in/janesmith"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
+    </div>
+    """
+    st.markdown(footer, unsafe_allow_html=True)
+
 
 # Connection to SQLite database
 conn = sqlite3.connect('finance.db') 
@@ -1470,3 +1530,5 @@ if 'user_id' in st.session_state:
                 if __name__ == "__main__":
                         main()
 conn.close()            
+
+add_footer()
