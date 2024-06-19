@@ -719,7 +719,7 @@ if 'user_id' in st.session_state:
             selected = option_menu(
             menu_title = None,
             options = ['Portfolio', 'Charts', 'Indian Market', 'FinBot', 'P&L to Date', 'Stock Metrics', 'Price Predictor', 'Financial Statement','Widgets'],
-            icons = ['🍎', '💡', '🍊', '🫡', '📈', '₹', '🥳', '😇', '🤩'],
+            icons = ['briefcase', 'bar-chart-line', 'globe', 'robot', 'calendar-check', 'graph-up', 'calculator', 'file-earmark-text', 'puzzle-fill'],
             menu_icon = "cast",
             default_index = 0,
             orientation = "horizontal",
