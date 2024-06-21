@@ -71,7 +71,7 @@ def add_footer():
         <div class="designer">Deepak Modi<a href="https://www.linkedin.com/in/deepak-ashok-modi-5600412bb/?trk=people-guest_people_search-card&originalSubdomain=in"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
         <div class="designer">Harsh Sinha<a href="https://www.linkedin.com/in/harshsinha12"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
         <div class="designer">Aditya Anshu<a href="https://www.linkedin.com/in/johndoe"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
-        <div class="designer">Sahil Advani<a href="https://www.linkedin.com/in/janesmith"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
+        <div class="designer">Sahil Advani<a href="https://www.linkedin.com/in/sahil-advani-87bb71313?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
         <div class="designer">Sandip Bala<a href="https://www.linkedin.com/in/janesmith"><img src="data:image/png;base64,{linkedin_icon_base64}"></a></div>
     </div>
     """
