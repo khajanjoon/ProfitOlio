@@ -147,6 +147,6 @@ visual breakdown of portfolio distribution.
 **Demo**
 
 - View the live app: [ProfitOlio](https://profitolio.streamlit.app/)
-- Watch the YouTube Demo: [YouTube](https://youtu.be/5G_8I19g_-Q)
+- Watch the YouTube Demo: [YouTube](https://youtu.be/54Zx-F9pf7A)
 
 ![ProfitOlio Stage - 2 Demo Screen Recording for Project Demonstration](https://github.com/harshsinha-12/ProfitOlio/blob/main/Stage-2Screenshot.png)

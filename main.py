@@ -710,7 +710,7 @@ visual breakdown of portfolio distribution.
 **Demo**
 
 - View the live app: [ProfitOlio](https://profitolio.streamlit.app/)
-- Watch the YouTube Demo: [YouTube](https://youtu.be/5G_8I19g_-Q)
+- Watch the YouTube Demo: [YouTube](https://youtu.be/54Zx-F9pf7A)
 """
     add_footer()
 
