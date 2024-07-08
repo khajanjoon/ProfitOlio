@@ -306,7 +306,6 @@ def home():
     if st.button('Refresh Data'):
         st.session_state['next_run_time'] = time.time() - 1  # Force refresh
         st.rerun()
-    add_footer()
 
 def stock_metrics():
     def calculate_beta(asset_returns, market_returns):
