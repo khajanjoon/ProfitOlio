@@ -508,13 +508,6 @@ elif choice == "About":
 ProfitOlio is a comprehensive finance application built using Streamlit, designed to offer robust tools for portfolio management. It features a financial chatbot (FinBot), future price prediction capabilities, and various visualizations to assist users in managing their investments effectively. It also includes a viewer for detailed financial statements.
 
 
-**Major Contributors:**
-
-- Harsh Sinha
-- Sahil Advani
-- Aditya Anshu
-- Sandip Bala
-- Deepak Ashok Modi
 
 **Table of Contents**
 
@@ -652,7 +645,7 @@ visual breakdown of portfolio distribution.
 **Demo**
 
 - View the live app: [ProfitOlio](https://profitolio.streamlit.app/)
-- Watch the YouTube Demo: [YouTube](https://youtu.be/5G_8I19g_-Q)
+- Watch the YouTube Demo: [YouTube](https://youtu.be/54Zx-F9pf7A)
 """
 
 # Initializing the session state and page layout
