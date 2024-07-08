@@ -21,78 +21,6 @@ from PIL import Image
 import requests
 import base64
 
-
-# Function to add a footer with designer names and navigation
-def add_footer():
-    # Load LinkedIn icon
-    linkedin_icon_url = "https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png"
-    response = requests.get(linkedin_icon_url)
-    linkedin_icon = Image.open(requests.get(linkedin_icon_url, stream=True).raw)
-    linkedin_icon.save("linkedin_icon.png")
-    linkedin_icon_base64 = base64.b64encode(open("linkedin_icon.png", "rb").read()).decode()
-
-    footer = f"""
-  <style>
-        .footer {{
-            background-color: #fae1f8;
-            padding: 50px;
-            position: relative;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            color: white;
-            text-align: center;
-            font-weight: semi-bold;
-            display: flex;
-            justify-content: center;
-        }}
-        .footer .section {{
-            margin: 0 80px;
-        }}
-        .footer .section h3 {{
-            margin: 0;
-            padding-bottom: 15px;
-        }}
-        .footer .section a {{
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: black;
-            margin-bottom: 5px;
-        }}
-        .footer .section .designer {{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 5px;
-            color: black;
-        }}
-        .footer .section .designer img {{
-            margin-left: 5px;
-        }}
-    </style>
-    <div class="footer">
-        <div class="section" style="margin-right: 150px;">
-            <h3>Developers:</h3>
-            <div class="designer">Deepak Modi<a href="https://www.linkedin.com/in/deepak-ashok-modi-5600412bb/?trk=people-guest_people_search-card&originalSubdomain=in"><img src="data:image/png;base64,{linkedin_icon_base64}" width="20" height="20"></a></div>
-            <div class="designer">Harsh Sinha<a href="https://www.linkedin.com/in/harshsinha12"><img src="data:image/png;base64,{linkedin_icon_base64}" width="20" height="20"></a></div>
-            <div class="designer">Sahil Advani<a href="https://www.linkedin.com/in/sahil-advani-87bb71313/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><img src="data:image/png;base64,{linkedin_icon_base64}" width="20" height="20"></a></div>
-            <div class="designer">Aditya Anshu<a href="https://www.linkedin.com/in/johndoe"><img src="data:image/png;base64,{linkedin_icon_base64}" width="20" height="20"></a></div>
-            <div class="designer">Sandip Bala<a href="https://www.linkedin.com/in/janesmith"><img src="data:image/png;base64,{linkedin_icon_base64}" width="20" height="20"></a></div>
-        </div>
-        <div class="section" style="margin-right: 80px;">
-            <h3>Navigation</h3>
-            <a href="#home">Home</a>
-            <a href="#Indian Market">Indian Market</a>
-            <a href="#Finance Bot">Finance Bot</a>
-            <a href="#Stock Price Predictor">Stock Price Predictor</a>
-            <a href="#Charts">Charts</a>
-        </div>
-    </div>
-    """
-    st.markdown(footer, unsafe_allow_html=True)
-
 # Connection to SQLite database
 conn = sqlite3.connect('finance.db') 
 c = conn.cursor()
@@ -522,463 +450,211 @@ def stock_metrics():
         st.write("Please enter a valid stock symbol.")
 
 # For login sidebar
-st.markdown("""
-    <style>
-    /* General CSS for the whole page */
-    body {
-        background-color: #f2f2f2;
-    }
-    /* Background colors for different pages */
-    .home-page {
-        background-color: #e6f7ff;
-        padding: 20px;
-        border-radius: 10px;
-        transition: background-color 0.3s ease;
-    }
-    .home-page:hover {
-        background-color: #d1e7f0;
-    }
-    .signup-page {
-        background-color: #ffe6f2;
-    }
-    .login-page {
-        background-color: #fff0e6;
-    }
-    .logout-page {
-        background-color: #e6ffe6;
-    }
-    .about-page {
-        background-color: #f0f8ff;
-    }
-    /* Title style */
-    .main-title {
-        font-size: 50px;
-        font-weight: bold;
-        color: #4a90e2;
-        text-align: center;
-        margin-bottom: 20px;
-        animation: fadeIn 2s;
-        border: 2px solid transparent;
-        padding: 10px;
-        transition: transform 0.3s ease, border-color 0.3s ease, color 0.3s;
-    }
-    .main-title:hover {
-        transform: scale(1.05);
-        border-color: #4a90e2;
-        color: #357ABD;
-    }
-    /* Subtitle style */
-    .subtitle {
-        font-size: 30px;
-        color: #1a1a1a;
-        text-align: center;
-        margin-bottom: 20px;
-        animation: fadeIn 3s;
-        border: 2px solid transparent;
-        padding: 10px;
-        transition: transform 0.3s ease, border-color 0.3s ease, color 0.3s;
-    }
-    .subtitle:hover {
-        transform: scale(1.05);
-        border-color: #1a1a1a;
-        color: #333;
-    }
-    /* Paragraph style */
-    .paragraph {
-        font-size: 18px;
-        color: #333;
-        text-align: justify;
-        margin: 20px;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        animation: fadeInUp 1s;
-        background: linear-gradient(to right, #e0eafc, #cfdef3);
-        transition: background 0.3s ease, transform 0.3s ease, color 0.3s;
-        border: 2px solid transparent;
-    }
-    .paragraph:hover {
-        background: linear-gradient(to right, #cfdef3, #e0eafc);
-        transform: scale(1.05);
-        border-color: #333;
-        color: #666;
-    }
-    /* List item style */
-    .paragraph ul, .paragraph ol {
-        margin-left: 20px;
-    }
-    .paragraph ul li, .paragraph ol li {
-        margin-bottom: 10px;
-    }
-    /* Different colors for list items */
-    .paragraph ul li:nth-child(odd) {
-        color: #d9534f;
-    }
-    .paragraph ul li:nth-child(even) {
-        color: #5bc0de;
-    }
-    .paragraph ol li:nth-child(odd) {
-        color: #f0ad4e;
-    }
-    .paragraph ol li:nth-child(even) {
-        color: #5cb85c;
-    }
-    /* Hover effect for paragraphs */
-    .paragraph:hover {
-        background: linear-gradient(to right, #cfdef3, #e0eafc);
-        transition: background 0.3s, transform 0.3s, color 0.3s;
-        transform: scale(1.05);
-        color: #666;
-    }
-    /* About page specific styles */
-    .about-section {
-        padding: 20px;
-        margin: 10px 0;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        animation: fadeInUp 1s;
-    }
-    .about-section:nth-child(odd) {
-        background: linear-gradient(to right, #ffd1dc, #ff8b94);
-    }
-    .about-section:nth-child(even) {
-        background: linear-gradient(to right, #ffecd2, #fcb69f);
-    }
-    /* Zoom in effect on hover for about sections */
-    .about-section:hover {
-        transform: scale(1.05);
-        transition: transform 0.3s;
-    }
-    /* Button style */
-    .stButton button {
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
-        border-radius: 5px;
-    }
-    .stButton button:hover {
-        background-color: #357ABD;
-        transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    /* Animation */
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translate3d(0, 100%, 0);
-        }
-        to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-        }
-    }
-    /* Centering forms and adding styles for login, signup, and logout pages */
-    .centered-form {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        flex-direction: column;
-        animation: fadeIn 1s;
-    }
-    .centered-form input {
-        margin-bottom: 10px;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .centered-form input:focus {
-        border-color: #4a90e2;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .centered-form button {
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
-        border-radius: 5px;
-    }
-    .centered-form button:hover {
-        background-color: #357ABD;
-        transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# Sidebar menu
+st.title('ProfitOlio - Portfolio Management System')
 menu = ["Home", "Login", "Signup", "Logout", "About"]
 choice = st.sidebar.selectbox("Menu", menu)
 
-# Home page
 if choice == "Home":
-    st.markdown('<div class="home-page">', unsafe_allow_html=True)
-    st.markdown('<h1 class="main-title">ProfitOlio - Portfolio Management System</h1>', unsafe_allow_html=True)
-    st.markdown('<h2 class="subtitle">Welcome to the Portfolio Management System</h2>', unsafe_allow_html=True)
-    st.markdown('<p class="paragraph">Your one-stop solution for managing your investment portfolio efficiently and effectively.</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("### Home Page")
+    st.markdown(
+    """
+    <style>
+    .big-font {
+        font-size:30px !important;
+    }
+    </style>
+    """, 
+    unsafe_allow_html=True,
+)
+
+    st.markdown("### Welcome to the Portfolio Management System")
     home()
 
-# Signup page
+
 elif choice == "Signup":
-    
-    st.markdown('<h2 class="subtitle">Signup Page</h2>', unsafe_allow_html=True)
-    new_username = st.text_input("New Username")
-    new_password = st.text_input("New Password", type='password')
-    if st.button("Signup"):
+    st.markdown("### Signup Page")
+    home()
+    new_username = st.sidebar.text_input("New Username")
+    new_password = st.sidebar.text_input("New Password", type='password')
+    if st.sidebar.button("Signup"):
         if register_user(new_username, new_password):
             st.success("You have successfully created a new account!")
             st.info("Go to the Login Menu to login")
         else:
             st.warning("Username already exists")
-    st.markdown('</div>', unsafe_allow_html=True)
 
-# Logout page
 elif choice == "Logout":
-   
-    st.markdown('<h2 class="subtitle">Logout Page</h2>', unsafe_allow_html=True)
-    if st.button("Logout"):
+    st.markdown("### Logout Page")
+    home()
+    if st.sidebar.button("Logout"):
         if 'user_id' in st.session_state:
             del st.session_state.user_id  # Clear user session
             st.info("You have been logged out.")
-    st.markdown('</div>', unsafe_allow_html=True)
 
-# Login page
 elif choice == "Login":
-   
-    st.markdown('<h2 class="subtitle">Login Page</h2>', unsafe_allow_html=True)
-    username = st.text_input("Username")
-    password = st.text_input("Password", type='password')
-    if st.button("Login"):
+    username = st.sidebar.text_input("Username")
+    password = st.sidebar.text_input("Password", type='password')
+    if st.sidebar.button("Login"):
         if check_user(username, password):
             st.success(f"Logged In as {username}")
             user_id = get_user_id(username)
             st.session_state['user_id'] = user_id
         else:
             st.warning("Incorrect Username/Password")
-    st.markdown('</div>', unsafe_allow_html=True)
+
 elif choice == "About":
-    st.markdown('<div class="about-page">', unsafe_allow_html=True)
-    st.markdown('<h2 class="subtitle">About ProfitOlio</h2>', unsafe_allow_html=True)
-    st.markdown(
-        """
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>ProfitOlio - Portfolio Management System</strong><br><br>
-            ProfitOlio is a comprehensive finance application built using Streamlit, designed to offer robust tools for portfolio management. It features a financial chatbot (FinBot), future price prediction capabilities, and various visualizations to assist users in managing their investments effectively. It also includes a viewer for detailed financial statements.
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Major Contributors:</strong>
-            <ul>
-                <li>Deepak Ashok Modi</li>
-                <li>Harsh Sinha</li>
-                <li>Sahil Advani</li>
-                <li>Aditya Anshu</li>
-                <li>Sandip Bala</li>
-            </ul>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Table of Contents</strong>
-            <ol>
-                <li>Portfolio Management System</li>
-                <li>Charts</li>
-                <li>Indian Market Overview</li>
-                <li>FinBot</li>
-                <li>P&L to Date</li>
-                <li>Stock Metrics</li>
-                <li>Price Predictor</li>
-                <li>Financial Statement Viewer</li>
-                <li>Widgets</li>
-                <li>Installation and Usage</li>
-                <li>Demo</li>
-            </ol>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Portfolio Management System</strong><br><br>
-            This module enables users to manage their stock portfolio comprehensively. Users can track investments, calculate profits or losses, and visualize how their investments are distributed.
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Features</strong>
-            <ul>
-                <li>Add stocks to the portfolio, including US stocks and cryptocurrencies.</li>
-                <li>Monitor the current value, total amount invested, and profit or loss on investments.</li>
-                <li>Sell stocks either partially or completely.</li>
-                <li>Convert investments from USD to INR for accurate tracking.</li>
-                <li>Employ pie charts for a visual breakdown of portfolio distribution.</li>
-            </ul>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Charts</strong><br><br>
-            Offer detailed visual representations of stock trends and profitability within the user’s portfolio.
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Features</strong>
-            <ul>
-                <li>Track and visualize historical stock prices over various periods (30 days, 3 months, 1 year, or 5 years).</li>
-                <li>Display annual (Year-over-Year) or quarterly (Quarter-over-Quarter) gross profit of the stocks.</li>
-            </ul>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Indian Market Overview</strong><br><br>
-            This module provides a daily overview of major Indian stock indices, including Nifty50 and Sensex. It forms a 5-min live candlestick chart for the Indian indices, displaying the day's high, low, open, and current levels.
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Features</strong>
-            <ul>
-                <li>Give a daily overview of major Indian Stock Indices; Nifty50 and Sensex.</li>
-                <li>Forms a 5-min live candlestick for the Indian Indices and show their Day's High, Low and Open as well as current levels.</li>
-            </ul>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>FinBot</strong><br><br>
-            FinBot is a finance chatbot powered by OpenAI GPT, providing insights into stock market analysis, company financials, and personalized investment strategies.
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Features</strong>
-            <ul>
-                <li>Interact with the bot to get analyses of stock market trends.</li>
-                <li>Obtain detailed technical and fundamental analysis.</li>
-            </ul>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>P&L to Date</strong><br><br>
-            Utilizes Yahoo Finance and Plotly to visualize the profit/loss of a company based on the amount invested over the last 10 years.
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Features</strong>
-            <ul>
-                <li>Check the profit or loss of a company for any amount invested up to the last 10 years.</li>
-            </ul>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Stock Metrics</strong><br><br>
-            Give certain important metrics like Beta, CAGR Var of stocks.
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Features</strong>
-            <ul>
-                <li>Calculates different stock metrics like Beta, CAGR, VaR etc and then show charts as well as provide information on them.</li>
-            </ul>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Price Predictor</strong><br><br>
-            The Price Predictor uses Prophet to forecast future stock prices based on historical data.
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Features</strong>
-            <ul>
-                <li>Predict stock prices for up to 5 years.</li>
-                <li>Visualize historical and forecasted stock prices.</li>
-                <li>Customize the date input for the current day.</li>
-                <li>Select from multiple stock options.</li>
-            </ul>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Financial Statement Viewer</strong><br><br>
-            This viewer provides annual or quarterly financial statements of stocks in a user-friendly format.
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Features</strong>
-            <ul>
-                <li>View and download balance sheets, income statements, and cash flow statements.</li>
-                <li>Obtain detailed graphs for gross profit QoQ and YoY, as well as a chart showing all financial metrics with an option to choose one.</li>
-                <li>Data in crores of Indian Rupees (INR) or US Dollars (USD).</li>
-                <li>Supports both Indian and US stock symbols.</li>
-            </ul>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Widgets</strong><br><br>
-            Provides widgets for Indian Stocks, including:
-            </p>
-        </div>
-        <div class="about-section">
-            <ul class="paragraph">
-                <li>Technicals</li>
-                <li>Checklist</li>
-                <li>QVT Score</li>
-                <li>SWOT Analysis</li>
-            </ul>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Features</strong>
-            <ul>
-                <li>Generate widgets of Indian stocks based on input, assisted by Trendlyne.</li>
-            </ul>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Installation and Usage</strong><br><br>
-            1. Clone the repository:<br>
-            <code>git clone https://github.com/harshsinha-12/ProfitOlio.git</code><br>
-            <code>cd ProfitOlio</code><br><br>
-            2. Install the required dependencies:<br>
-            <code>pip install -r requirements.txt</code><br><br>
-            3. Run the application:<br>
-            <code>streamlit run main.py</code>
-            </p>
-        </div>
-        <div class="about-section">
-            <p class="paragraph">
-            <strong>Demo</strong><br><br>
-            - View the live app: <a href="https://profitolio.streamlit.app/" target="_blank">ProfitOlio</a><br>
-            - Watch the YouTube Demo: <a href="https://youtu.be/5G_8I19g_-Q" target="_blank">YouTube</a>
-            </p>
-        </div>
-        """, unsafe_allow_html=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
-    add_footer()
+    """
+    **ProfitOlio - Portfolio Management System**
+
+ProfitOlio is a comprehensive finance application built using Streamlit, designed to offer robust tools for portfolio management. It features a financial chatbot (FinBot), future price prediction capabilities, and various visualizations to assist users in managing their investments effectively. It also includes a viewer for detailed financial statements.
+
+
+**Major Contributors:**
+
+- Harsh Sinha
+- Sahil Advani
+- Aditya Anshu
+- Sandip Bala
+- Deepak Ashok Modi
+
+**Table of Contents**
+
+1. Portfolio Management System
+2. Charts
+3. Indian Market Overview
+4. FinBot
+5. P&L to Date
+6. Stock Metrics
+7. Price Predictor
+8. Financial Statement Viewer
+9. Widgets
+8. Installation and Usage
+9. Demo
+
+**Portfolio Management System**
+
+	This module enables users to manage their stock portfolio comprehensively. Users can track investments, calculate profits or losses, and visualize how their investments are distributed.
+
+**Features**
+
+- Add stocks to the portfolio, including US stocks and cryptocurrencies.
+
+- Monitor the current value, total amount invested, and profit or loss on investments.
+
+- Sell stocks either partially or completely.
+
+- Convert investments from USD to INR for accurate tracking.
+
+- Employ pie charts for a 
+visual breakdown of portfolio distribution.
+
+**Features**
+
+
+**Charts**
+
+	Offer detailed visual representations of stock trends and profitability within the user’s portfolio.
+
+**Features**
+
+- Track and visualize historical stock prices over various periods (30 days, 3 months, 1 year, or 5 years).
+- Display annual (Year-over-Year) or quarterly (Quarter-over-Quarter) gross profit of the stocks.
+
+**Indian Market Overview**
+
+	This module provides a daily overview of major Indian stock indices, including Nifty50 and Sensex. It Forms a 5-min live candlestick chart for the Indian indices, displaying the day's high, low, open, and current levels.
+
+**Features**
+
+- Give a daily overview of major Indian Stock Indices; Nifty50 and Sensex. 
+- Forms a 5-min live candlestick for the Indian Indices and show their Day's High, Low and Open as well as current levels.
+
+**FinBot**
+
+	FinBot is a finance chatbot powered by OpenAI GPT, providing insights into stock market analysis, company financials, and personalized investment strategies.
+
+**Features**
+
+- Interact with the bot to get analyses of stock market trends.
+- Obtain detailed technical and fundamental analysis.
+
+**P&L to Date**
+
+	Utilizes Yahoo Finance and Plotly to visualize the profit/loss of a company based on the amount invested over the last 10 years.
+
+**Features**
+
+- Check the profit or loss of a company for any amount invested up to the last 10 years.
+
+**Stock Metrics**
+
+	Give certain important metrics like Beta, CAGR Var of stocks.
+
+**Features**
+
+- Calculates different stock metrics like Beta, CAGR, VaR etc and then show charts as well as provide information on them.
+
+**Price Predictor**
+
+	The Price Predictor uses Prophet to forecast future stock prices based on historical data.
+
+**Features**
+
+- Predict stock prices for up to 5 years.
+- Visualize historical and forecasted stock prices.
+- Customize the date input for the current day.
+- Select from multiple stock options.
+
+**Financial Statement Viewer**
+
+	This viewer provides annual or quarterly financial statements of stocks in a user-friendly format.
+
+**Features**
+
+- View and download balance sheets, income statements, and cash flow statements.
+- Obtain detailed graphs for gross profit QoQ and YoY, as well as a chart showing all financial metrics with an option to choose one.
+- Data in crores of Indian Rupees (INR) or US Dollars (USD).
+- Supports both Indian and US stock symbols.
+
+**Widgets**
+
+	Provides widgets for Indian Stocks, including:
+
+	- Technicals
+	- Checklist
+	- QVT Score
+	- SWOT Analysis
+
+**Features**
+
+- Generate widgets of Indian stocks based on input, assisted by Trendlyne.
+
+**Installation and Usage**
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/harshsinha-12/ProfitOlio.git
+    cd ProfitOlio
+    ```
+
+2. Install the required dependencies:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. Run the application:
+
+    ```bash
+    streamlit run main.py
+    ```
+
+**Demo**
+
+- View the live app: [ProfitOlio](https://profitolio.streamlit.app/)
+- Watch the YouTube Demo: [YouTube](https://youtu.be/5G_8I19g_-Q)
+"""
 
 # Initializing the session state and page layout
 if 'user_id' in st.session_state:
@@ -986,7 +662,7 @@ if 'user_id' in st.session_state:
             selected = option_menu(
             menu_title = None,
             options = ['Portfolio', 'Charts', 'Indian Market', 'FinBot', 'P&L to Date', 'Stock Metrics', 'Price Predictor', 'Financial Statement','Widgets'],
-            icons = ['🍎', '💡', '🍊', '🫡', '📈', '₹', '🥳', '😇', '🤩'],
+            icons = ['briefcase', 'bar-chart-line', 'globe', 'robot', 'calendar-check', 'graph-up', 'calculator', 'file-earmark-text', 'puzzle-fill'],
             menu_icon = "cast",
             default_index = 0,
             orientation = "horizontal",
